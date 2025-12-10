@@ -23,7 +23,7 @@
   ],
   "license": "SEE LICENSE IN ../LICENSE",
   "engines": {
-    "node": ">=25"
+    "node": "24.x"
   },
   "dependencies": {
     "@nuralogix.ai/dfx-api-client": "^1.0.73",
