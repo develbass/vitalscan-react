@@ -14,6 +14,11 @@ import { writeFileSync } from 'fs';
 import postcssImport from 'postcss-import';
 import stylexPlugin from '@stylexjs/rollup-plugin';
 
+// Ensure NODE_ENV is set (default to production for builds)
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = 'production';
+}
+
 const isDevelopment = process.env.NODE_ENV === 'development';
 const distFolder = './dist';
 const deleteTargets = [`${distFolder}/*`];
@@ -72,10 +77,11 @@ const config = [
       html({
         fileName: 'index.html',
         template: ({ bundle, files }) => {
+          const cssFile = files.css && files.css[0] ? files.css[0].fileName : '';
           return getpageTemplate(
             'Web Measurement Embedded App',
             Object.keys(bundle)[0],
-            files.css[0].fileName
+            cssFile
           );
         },
       }),

@@ -86,8 +86,7 @@ const getpageTemplate = (pageTitle, bundleFileName, cssfileName) => {
         '\n' +
         '       <meta name="viewport" content="width=device-width, initial-scale=1.0">' +
         '\n' +
-        `       <link href="/${cssfileName}" rel="stylesheet">` +
-        '\n' +
+        (cssfileName ? `       <link href="/${cssfileName}" rel="stylesheet">\n` : '') +
         '       <title>' +
         pageTitle +
         '</title>' +
