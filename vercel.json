@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' yarn build",
   "outputDirectory": "dist",
-  "installCommand": "yarn install --frozen-lockfile",
+  "installCommand": "yarn install",
   "framework": null,
   "rewrites": [
     {
