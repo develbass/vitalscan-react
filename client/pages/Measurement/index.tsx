@@ -32,25 +32,63 @@ const Measurement = () => {
 
   useEffect(() => {
     (async function () {
+      console.log('[DEBUG] Measurement component mounted');
       const container = document.createElement('div');
       container.id = 'measurement-embedded-app-container';
 
       const apiUrl = '/api';
-      const studyId = await fetch(`${apiUrl}/studyId`);
-      const studyIdResponse = await studyId.json();
-      const token = await fetch(`${apiUrl}/token`);
-      const tokenResponse = await token.json();
+      
+      try {
+        console.log('[DEBUG] Fetching studyId from:', `${apiUrl}/studyId`);
+        const studyIdResponse = await fetch(`${apiUrl}/studyId`);
+        console.log('[DEBUG] studyId response status:', studyIdResponse.status);
+        console.log('[DEBUG] studyId response ok:', studyIdResponse.ok);
+        
+        const studyIdText = await studyIdResponse.text();
+        console.log('[DEBUG] studyId response text:', studyIdText);
+        
+        let studyIdData;
+        try {
+          studyIdData = JSON.parse(studyIdText);
+          console.log('[DEBUG] studyId parsed JSON:', studyIdData);
+        } catch (parseError) {
+          console.error('[DEBUG] Failed to parse studyId response as JSON:', parseError);
+          console.error('[DEBUG] Response was:', studyIdText);
+          throw new Error(`Failed to parse studyId response. Status: ${studyIdResponse.status}, Response: ${studyIdText.substring(0, 200)}`);
+        }
 
-      if (studyIdResponse.status === '200' && tokenResponse.status === '200') {
+        console.log('[DEBUG] Fetching token from:', `${apiUrl}/token`);
+        const tokenResponse = await fetch(`${apiUrl}/token`);
+        console.log('[DEBUG] token response status:', tokenResponse.status);
+        console.log('[DEBUG] token response ok:', tokenResponse.ok);
+        
+        const tokenText = await tokenResponse.text();
+        console.log('[DEBUG] token response text:', tokenText.substring(0, 500));
+        
+        let tokenData;
+        try {
+          tokenData = JSON.parse(tokenText);
+          console.log('[DEBUG] token parsed JSON keys:', Object.keys(tokenData));
+        } catch (parseError) {
+          console.error('[DEBUG] Failed to parse token response as JSON:', parseError);
+          console.error('[DEBUG] Response was:', tokenText.substring(0, 200));
+          throw new Error(`Failed to parse token response. Status: ${tokenResponse.status}, Response: ${tokenText.substring(0, 200)}`);
+        }
+
+        console.log('[DEBUG] studyIdData.status:', studyIdData.status);
+        console.log('[DEBUG] tokenData.status:', tokenData.status);
+
+      if (studyIdData.status === '200' && tokenData.status === '200') {
+        console.log('[DEBUG] Both API calls successful, initializing MeasurementEmbeddedApp');
         const options: MeasurementEmbeddedAppOptions = {
           container,
           ...(language && { language }),
           appPath: './wmea',
           // apiUrl: 'api.na-east.deepaffex.ai',
           settings: {
-            token: tokenResponse.token,
-            refreshToken: tokenResponse.refreshToken,
-            studyId: studyIdResponse.studyId,
+            token: tokenData.token,
+            refreshToken: tokenData.refreshToken,
+            studyId: studyIdData.studyId,
           },
           profile: demographics,
           config: {
@@ -113,7 +151,16 @@ const Measurement = () => {
           console.log('App event received', appEvent);
         };
       } else {
-        console.error('Failed to get Study ID and Token pair');
+        console.error('[DEBUG] Failed to get Study ID and Token pair');
+        console.error('[DEBUG] studyIdData:', studyIdData);
+        console.error('[DEBUG] tokenData:', tokenData);
+      }
+      } catch (error) {
+        console.error('[DEBUG] Error in Measurement useEffect:', error);
+        console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+        console.error('[DEBUG] Error message:', error instanceof Error ? error.message : 'Unknown error during initialization');
+        // Não definimos appError aqui porque o erro de inicialização não é um MeasurementEmbeddedAppError válido
+        // O erro será logado no console para debug
       }
     })();
     return () => {
