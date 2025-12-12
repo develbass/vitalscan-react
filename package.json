@@ -6,14 +6,14 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"yarn watch\" \"yarn server:dev\"",
-    "watch": "node --env-file=.dev.env ./node_modules/rollup/dist/bin/rollup --config ./client/config/rollup.config.mjs --watch",
+    "watch": "node --env-file=.env ./node_modules/rollup/dist/bin/rollup --config ./client/config/rollup.config.mjs --watch",
     "build": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' node ./node_modules/rollup/dist/bin/rollup --config ./client/config/rollup.config.mjs",
     "lint": "eslint",
     "typecheck:react": "tsc --noEmit --project tsconfig.json",
     "typecheck:server": "tsc --noEmit --project server/tsconfig.json",
     "typecheck": "yarn typecheck:react && yarn typecheck:server",
-    "server:dev": "node --experimental-strip-types --env-file=.dev.env server/src/index.ts",
-    "server:prod": "NODE_ENV=production node --experimental-strip-types --env-file=.prod.env server/src/index.ts"
+    "server:dev": "node --experimental-strip-types --env-file=.env server/src/index.ts",
+    "server:prod": "NODE_ENV=production node --experimental-strip-types --env-file=.env server/src/index.ts"
   },
   "keywords": [
     "Nuralogix",

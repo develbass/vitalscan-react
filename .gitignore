@@ -3,3 +3,4 @@ dist/
 .yarn/*
 .dev.env
 .prod.env
+.env
