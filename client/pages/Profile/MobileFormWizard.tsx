@@ -131,7 +131,9 @@ const MobileFormWizard = () => {
     else if (currentStep === MOBILE_STEPS.MEDICAL) setCurrentStep(MOBILE_STEPS.BODY);
   };
 
-  const onSubmit = () => handleSubmit(formState);
+  const onSubmit = () => {
+    void handleSubmit(formState);
+  };
 
   const canProceedSexAge = formState.sex !== '' && !isAgeInvalid(formState.age);
   const canProceedBody = isProfileInfoValid(formState);

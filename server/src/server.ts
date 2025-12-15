@@ -7,6 +7,7 @@ import client, { enums } from '@nuralogix.ai/dfx-api-client';
 import connectLivereload from 'connect-livereload';
 import LiveReload from './livereload.ts';
 import { RapidocApiClient } from '../../client/utils/rapidocApiClient.ts';
+import type { HealthInformationsPayload } from '../../client/utils/rapidocApiClient.ts';
 
 const { DeviceTypeID } = enums;
 const distPath = fileURLToPath(new URL('../../dist/', import.meta.url));
@@ -68,6 +69,8 @@ export default class Server {
   }
 
   routes() {
+    this.app.use(express.json());
+
     this.app.get('/health', (_req: Request, res: Response) => {
       res.json({ status: 'ok' });
     });
@@ -136,6 +139,67 @@ export default class Server {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error';
         console.error('Erro ao buscar informações de saúde do beneficiário:', error);
+        return res.status(500).json({
+          status: '500',
+          error: message,
+        });
+      }
+    });
+
+    this.app.post('/api/health-informations', async (req: Request, res: Response) => {
+      try {
+        const {
+          beneficiaryUuid,
+          clientUuid,
+          height,
+          weight,
+          smoke,
+          medicationHypertension,
+          gender,
+          diabetes,
+        } = req.body as {
+          beneficiaryUuid?: string;
+          clientUuid?: string;
+          height?: number;
+          weight?: number;
+          smoke?: boolean | string;
+          medicationHypertension?: boolean | string;
+          gender?: string;
+          diabetes?: string;
+        };
+
+        if (!beneficiaryUuid) {
+          return res.status(400).json({
+            status: '400',
+            error: 'beneficiaryUuid é obrigatório no corpo da requisição',
+          });
+        }
+
+        if (typeof height !== 'number' || typeof weight !== 'number') {
+          return res.status(400).json({
+            status: '400',
+            error: 'height e weight numéricos são obrigatórios no corpo da requisição',
+          });
+        }
+
+        const payload: HealthInformationsPayload = {
+          beneficiary: {
+            uuid: beneficiaryUuid,
+          },
+          height,
+          weight,
+          smoke: smoke as boolean | string,
+          medicationHypertension: medicationHypertension as boolean | string,
+          gender: gender ?? '',
+          diabetes: diabetes ?? '',
+        };
+
+        const result = await this.rapidocApiClient.saveHealthInformations(payload, clientUuid);
+
+        return res.json(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Erro ao salvar informações de saúde na Rapidoc:', error);
         return res.status(500).json({
           status: '500',
           error: message,

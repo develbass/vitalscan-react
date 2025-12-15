@@ -67,7 +67,9 @@ const FormWizard = () => {
     setCurrentStep(WIZARD_STEPS.PROFILE);
   };
 
-  const onSubmit = () => handleSubmit(formState);
+  const onSubmit = () => {
+    void handleSubmit(formState);
+  };
 
   return (
     <div {...stylex.props(styles.wrapper)}>

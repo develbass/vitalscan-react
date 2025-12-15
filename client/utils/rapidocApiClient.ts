@@ -4,7 +4,7 @@
  */
 
 import type { WMSConfig } from '../types/index.ts';
-import { logCurlRequest } from './networkUtils.js';
+import { logCurlRequest } from './networkUtils.ts';
 
 export interface RapidocApiConfig {
   rapidocApiUrl?: string;
@@ -171,14 +171,58 @@ export class RapidocApiClient {
       );
     }
 
-    const healthData = await response.json();
+    const rawHealthData = await response.json();
 
-    // Retornar apenas o primeiro objeto do array se for um array
-    if (Array.isArray(healthData) && healthData.length > 0) {
-      return healthData[0];
+    const mapInboundSmoke = (value: unknown): boolean | string | undefined => {
+      if (value === undefined || value === null) return undefined;
+      const v = String(value).toLowerCase();
+      if (v === 'true' || v === 'yes') return true;
+      if (v === 'false' || v === 'no') return false;
+      return value as boolean | string;
+    };
+
+    const mapInboundMedication = (value: unknown): boolean | string | undefined => {
+      if (value === undefined || value === null) return undefined;
+      const v = String(value).toLowerCase();
+      if (v === 'true' || v === 'yes') return true;
+      if (v === 'false' || v === 'no') return false;
+      return value as boolean | string;
+    };
+
+    const mapInboundGender = (value: unknown): string | undefined => {
+      if (value === undefined || value === null) return undefined;
+      const v = String(value).toUpperCase();
+      if (v === 'MASCULINE' || v === 'M') return 'male';
+      if (v === 'FEMININE' || v === 'F') return 'female';
+      return String(value);
+    };
+
+    const mapInboundDiabetes = (value: unknown): string | undefined => {
+      if (value === undefined || value === null) return undefined;
+      const v = String(value).toUpperCase();
+      if (v === 'ONE') return 'TYPE1';
+      if (v === 'TWO') return 'TYPE2';
+      if (v === 'NON') return 'NON';
+      return String(value);
+    };
+
+    const normalizeRecord = (record: any) => {
+      if (!record || typeof record !== 'object') return record;
+      return {
+        ...record,
+        smoke: mapInboundSmoke(record.smoke),
+        medicationHypertension: mapInboundMedication(record.medicationHypertension),
+        gender: mapInboundGender(record.gender),
+        diabetes: mapInboundDiabetes(record.diabetes),
+      };
+    };
+
+    // Retornar apenas o primeiro objeto do array se for um array, já normalizado
+    if (Array.isArray(rawHealthData) && rawHealthData.length > 0) {
+      return normalizeRecord(rawHealthData[0]);
     }
 
-    return healthData;
+    return normalizeRecord(rawHealthData);
   }
 
   /**
@@ -233,12 +277,34 @@ export class RapidocApiClient {
       throw new Error('weight deve estar entre 20 e 300 kg');
     }
 
-    // Normalizar gender
+    // Normalizar flags e campos para formato esperado pela Rapidoc / banco
+    const normalizeSmoke = (smoke: boolean | string) => {
+      const value = String(smoke).toLowerCase();
+      if (value === 'yes' || value === 'true' || value === '1') return 'true';
+      if (value === 'no' || value === 'false' || value === '0') return 'false';
+      return value;
+    };
+
+    const normalizeMedicationHypertension = (med: boolean | string) => {
+      const value = String(med).toLowerCase();
+      if (value === 'yes' || value === 'true' || value === '1') return 'true';
+      if (value === 'no' || value === 'false' || value === '0') return 'false';
+      return value;
+    };
+
     const normalizeGender = (gender: string) => {
-      const genderStr = String(gender).toUpperCase();
-      if (['M', 'MALE', 'MASCULINO'].includes(genderStr)) return 'M';
-      if (['F', 'FEMALE', 'FEMININO'].includes(genderStr)) return 'F';
-      return genderStr;
+      const genderStr = String(gender).toLowerCase();
+      if (['male', 'm', 'masculino', 'masculine'].includes(genderStr)) return 'MASCULINE';
+      if (['female', 'f', 'feminino', 'feminine'].includes(genderStr)) return 'FEMININE';
+      return genderStr.toUpperCase();
+    };
+
+    const normalizeDiabetes = (diabetes: string) => {
+      const d = String(diabetes).toLowerCase();
+      if (d === 'type1' || d === 'one') return 'ONE';
+      if (d === 'type2' || d === 'two') return 'TWO';
+      if (['non', 'none', 'no', 'nenhum'].includes(d)) return 'NON';
+      return d.toUpperCase();
     };
 
     const beneficiaryPayload: Beneficiary = {
@@ -254,10 +320,10 @@ export class RapidocApiClient {
       beneficiary: beneficiaryPayload,
       height: heightNum,
       weight: weightNum,
-      smoke: data.smoke,
-      medicationHypertension: data.medicationHypertension,
+      smoke: normalizeSmoke(data.smoke),
+      medicationHypertension: normalizeMedicationHypertension(data.medicationHypertension),
       gender: normalizeGender(data.gender),
-      diabetes: data.diabetes,
+      diabetes: normalizeDiabetes(data.diabetes),
     };
 
     const apiUrl = API_URL + 'v1/beneficiary-health-informations';
