@@ -327,6 +327,7 @@ export class RapidocApiClient {
     };
 
     const apiUrl = API_URL + 'v1/beneficiary-health-informations';
+    
     const finalUrl = `${apiUrl}?clientUuid=${urlClientUuid}`;
 
     const headers = {
