@@ -6,10 +6,11 @@ import { fileURLToPath } from 'url';
 import client, { enums } from '@nuralogix.ai/dfx-api-client';
 import connectLivereload from 'connect-livereload';
 import LiveReload from './livereload.ts';
+import { RapidocApiClient } from '../../client/utils/rapidocApiClient.ts';
 
 const { DeviceTypeID } = enums;
 const distPath = fileURLToPath(new URL('../../dist/', import.meta.url));
-const { API_URL, LICENSE_KEY, STUDY_ID } = process.env;
+const { API_URL, LICENSE_KEY, STUDY_ID, RPDADMIN_TOKEN, TEMA_URL, RPD_CLIENTID } = process.env;
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
 function requireEnv(name: string, value: string | undefined): string {
@@ -30,6 +31,14 @@ export default class Server {
     url: {
       http: new URL(`https://${this.apiUrl}`),
       wss: new URL(`wss://${this.apiUrl}`),
+    },
+  });
+  rapidocApiClient = new RapidocApiClient({
+    environments: {
+      API_URL,
+      RPDADMIN_TOKEN,
+      TEMA_URL,
+      RPD_CLIENTID,
     },
   });
 
@@ -95,6 +104,135 @@ export default class Server {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : error;
+        res.status(500).json({ status: '500', error: message });
+      }
+    });
+
+    this.app.get('/api/beneficiary-health', async (req: Request, res: Response) => {
+      try {
+        const { beneficiaryUuid, clientUuid } = req.query;
+
+        if (!beneficiaryUuid || typeof beneficiaryUuid !== 'string') {
+          return res.status(400).json({
+            status: '400',
+            error: 'beneficiaryUuid é obrigatório na query string',
+          });
+        }
+
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(beneficiaryUuid)) {
+          return res.status(400).json({
+            status: '400',
+            error: 'beneficiaryUuid deve estar no formato UUID válido',
+          });
+        }
+
+        const healthData = await this.rapidocApiClient.fetchBeneficiaryHealthInformations(
+          beneficiaryUuid,
+          typeof clientUuid === 'string' ? clientUuid : undefined
+        );
+
+        return res.json(healthData);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Erro ao buscar informações de saúde do beneficiário:', error);
+        return res.status(500).json({
+          status: '500',
+          error: message,
+        });
+      }
+    });
+
+    this.app.get('/api/validate-token', async (req: Request, res: Response) => {
+      try {
+        const { token, beneficiaryUuid, clientUuid } = req.query;
+
+        if (!token || typeof token !== 'string') {
+          return res.status(400).json({ 
+            status: '400', 
+            error: 'token é obrigatório na query string' 
+          });
+        }
+
+        if (!beneficiaryUuid || typeof beneficiaryUuid !== 'string') {
+          return res.status(400).json({ 
+            status: '400', 
+            error: 'beneficiaryUuid é obrigatório na query string' 
+          });
+        }
+
+        if (!clientUuid || typeof clientUuid !== 'string') {
+          return res.status(400).json({ 
+            status: '400', 
+            error: 'clientUuid é obrigatório na query string' 
+          });
+        }
+
+        if (!RPDADMIN_TOKEN) {
+          return res.status(500).json({ 
+            status: '500', 
+            error: 'Token da API é obrigatório. Configure RPDADMIN_TOKEN no .env.' 
+          });
+        }
+
+        if (!TEMA_URL) {
+          return res.status(500).json({ 
+            status: '500', 
+            error: 'URL da API TEMA é obrigatória. Configure TEMA_URL no .env.' 
+          });
+        }
+
+        if (!RPD_CLIENTID) {
+          return res.status(500).json({ 
+            status: '500', 
+            error: 'clientUuid é obrigatório. Configure RPD_CLIENTID no .env.' 
+          });
+        }
+
+        // Validar formato do UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(beneficiaryUuid)) {
+          return res.status(400).json({ 
+            status: '400', 
+            error: 'beneficiaryUuid deve estar no formato UUID válido' 
+          });
+        }
+
+        const validateUrl = `${TEMA_URL}beneficiary-scans/validate-vitalscan?beneficiaryUuid=${beneficiaryUuid}&clientUuid=${clientUuid}`;
+
+        const headers = {
+          'Authorization': `Bearer ${RPDADMIN_TOKEN}`,
+          'clientId': RPD_CLIENTID,
+          'consumes': 'application/json',
+          'content-type': 'application/vnd.rapidoc.tema-v2+json',
+          'produces': 'application/json',
+          'token': token,
+        };
+
+        const response = await fetch(validateUrl, {
+          method: 'GET',
+          headers,
+        });
+
+        if (!response.ok) {
+          let errorBody = '';
+          try {
+            errorBody = await response.text();
+          } catch (e) {
+            console.error('Não foi possível ler o corpo da resposta de erro');
+          }
+
+          return res.status(response.status).json({
+            status: String(response.status),
+            error: `Erro ao validar token Rapidoc: ${response.status} ${response.statusText}. Detalhes: ${errorBody}`
+          });
+        }
+
+        const data = await response.json();
+        res.json(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Erro ao validar token:', error);
         res.status(500).json({ status: '500', error: message });
       }
     });

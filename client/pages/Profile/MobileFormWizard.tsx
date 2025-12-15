@@ -9,6 +9,7 @@ import { INITIAL_FORM_STATE, FORM_VALUES } from './constants';
 import { useFormSubmission } from './utils/formSubmissionUtils';
 import useUnitConversion from './hooks/useUnitConversion';
 import { usePrepopulateForm } from './hooks/usePrepopulateForm';
+import { useRapidocHealthPrefill } from './hooks/useRapidocHealthPrefill';
 import SexSelector from './Fields/SexSelector';
 import AgeField from './Fields/AgeField';
 import UnitSelector from './Fields/UnitSelector';
@@ -118,6 +119,7 @@ const MobileFormWizard = () => {
 
   useUnitConversion(formState, setFormState);
   usePrepopulateForm(setFormState);
+  useRapidocHealthPrefill(setFormState);
 
   const goNext = () => {
     if (currentStep === MOBILE_STEPS.SEX_AGE) setCurrentStep(MOBILE_STEPS.BODY);

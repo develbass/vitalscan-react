@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router';
 import state from '../../state';
 import useUnitConversion from './hooks/useUnitConversion';
 import { usePrepopulateForm } from './hooks/usePrepopulateForm';
+import { useRapidocHealthPrefill } from './hooks/useRapidocHealthPrefill';
 
 const styles = stylex.create({
   wrapper: {
@@ -56,6 +57,7 @@ const FormWizard = () => {
 
   useUnitConversion(formState, setFormState);
   usePrepopulateForm(setFormState);
+  useRapidocHealthPrefill(setFormState);
 
   const handleNextStep = () => {
     setCurrentStep(WIZARD_STEPS.MEDICAL);
