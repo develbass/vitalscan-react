@@ -148,8 +148,24 @@ export default async function handler(req: any, res: any) {
       diabetes: normalizeDiabetes(diabetes),
     };
 
-    const apiUrl = API_URL + 'v1/beneficiary-health-informations';
+    // Garantir que API_URL tenha protocolo e barra final
+    let baseUrl = API_URL.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (!baseUrl.endsWith('/')) {
+      baseUrl = `${baseUrl}/`;
+    }
+    
+    const apiUrl = `${baseUrl}v1/beneficiary-health-informations`;
     const finalUrl = `${apiUrl}?clientUuid=${urlClientUuid}`;
+
+    // Validar se a URL é válida
+    try {
+      new URL(finalUrl);
+    } catch (urlError) {
+      throw new Error(`URL inválida construída: ${finalUrl}. Erro: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`);
+    }
 
     const headers = {
       'Authorization': `Bearer ${RPDADMIN_TOKEN}`,

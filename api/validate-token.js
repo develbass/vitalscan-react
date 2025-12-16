@@ -77,7 +77,26 @@ export default async function handler(req, res) {
       });
     }
 
-    const validateUrl = `${TEMA_URL}beneficiary-scans/validate-vitalscan?beneficiaryUuid=${beneficiaryUuid}&clientUuid=${clientUuid}`;
+    // Garantir que TEMA_URL tenha protocolo e barra final
+    let baseUrl = TEMA_URL.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (!baseUrl.endsWith('/')) {
+      baseUrl = `${baseUrl}/`;
+    }
+
+    const validateUrl = `${baseUrl}beneficiary-scans/validate-vitalscan?beneficiaryUuid=${beneficiaryUuid}&clientUuid=${clientUuid}`;
+
+    // Validar se a URL é válida
+    try {
+      new URL(validateUrl);
+    } catch (urlError) {
+      return res.status(500).json({
+        status: '500',
+        error: `URL inválida construída: ${validateUrl}. Erro: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`
+      });
+    }
 
     const headers = {
       'Authorization': `Bearer ${RPDADMIN_TOKEN}`,

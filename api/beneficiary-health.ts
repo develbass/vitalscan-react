@@ -57,8 +57,25 @@ export default async function handler(req: any, res: any) {
     }
 
     const urlClientUuid = typeof clientUuid === 'string' ? clientUuid : RPD_CLIENTID;
-    const healthInfoUrl = `${API_URL}v1/beneficiary-health-informations`;
+    
+    // Garantir que API_URL tenha protocolo e barra final
+    let baseUrl = API_URL.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (!baseUrl.endsWith('/')) {
+      baseUrl = `${baseUrl}/`;
+    }
+    
+    const healthInfoUrl = `${baseUrl}v1/beneficiary-health-informations`;
     const requestUrl = `${healthInfoUrl}?beneficiaryUuid=${encodeURIComponent(beneficiaryUuid)}&clientUuid=${encodeURIComponent(urlClientUuid)}`;
+
+    // Validar se a URL é válida
+    try {
+      new URL(requestUrl);
+    } catch (urlError) {
+      throw new Error(`URL inválida construída: ${requestUrl}. Erro: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`);
+    }
 
     const headers = {
       'Authorization': `Bearer ${RPDADMIN_TOKEN}`,
