@@ -99,11 +99,28 @@ export default class Server {
         );
         const { status, body } = registerLicense;
 
+        // Validar se status é válido
+        if (!status) {
+          return res.status(500).json({ 
+            status: '500', 
+            error: 'Erro ao obter token: status inválido da API' 
+          });
+        }
+
         if (status === '200') {
           const { Token, RefreshToken } = body;
           res.json({ status, token: Token, refreshToken: RefreshToken });
         } else {
-          res.status(Number.parseInt(status, 10)).json({ status, error: body });
+          // Garantir que o status code seja um número válido
+          const statusCode = Number.parseInt(String(status), 10);
+          if (isNaN(statusCode) || statusCode < 100 || statusCode >= 600) {
+            // Se não conseguir converter para um status code válido, usar 500
+            return res.status(500).json({ 
+              status: '500', 
+              error: body || 'Erro desconhecido ao obter token' 
+            });
+          }
+          res.status(statusCode).json({ status, error: body });
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : error;

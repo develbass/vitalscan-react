@@ -103,6 +103,34 @@ const Measurement = () => {
         console.log('[DEBUG] studyIdData.status:', studyIdData.status);
         console.log('[DEBUG] tokenData.status:', tokenData.status);
 
+        // Validar se há erros nas respostas
+        if (studyIdData.status !== '200') {
+          const errorMsg = studyIdData.error || 'Erro desconhecido ao obter Study ID';
+          console.error('[DEBUG] Study ID API error:', errorMsg);
+          throw new Error(`Erro ao obter Study ID: ${errorMsg}`);
+        }
+
+        if (tokenData.status !== '200') {
+          const errorMsg = tokenData.error || 'Erro desconhecido ao obter Token';
+          console.error('[DEBUG] Token API error:', errorMsg);
+          throw new Error(`Erro ao obter Token: ${errorMsg}`);
+        }
+
+        // Validar se os dados necessários estão presentes
+        if (!studyIdData.studyId) {
+          console.error('[DEBUG] Study ID is missing from response');
+          throw new Error('Study ID não encontrado na resposta da API');
+        }
+
+        if (!tokenData.token) {
+          console.error('[DEBUG] Token is missing from response');
+          throw new Error('Token não encontrado na resposta da API');
+        }
+
+        if (!tokenData.refreshToken) {
+          console.warn('[DEBUG] RefreshToken is missing from response, but continuing...');
+        }
+
       if (studyIdData.status === '200' && tokenData.status === '200') {
         console.log('[DEBUG] Both API calls successful, initializing MeasurementEmbeddedApp');
         
@@ -132,6 +160,33 @@ const Measurement = () => {
           document.body.appendChild(container);
         }
         
+        // Validar profile antes de inicializar
+        if (!demographics) {
+          console.error('[DEBUG] Demographics profile is missing');
+          throw new Error('Perfil demográfico não encontrado. Por favor, preencha o formulário de perfil primeiro.');
+        }
+
+        // Validar campos obrigatórios do profile
+        const requiredFields: Array<keyof typeof demographics> = ['age', 'height', 'weight', 'sex'];
+        const missingFields = requiredFields.filter(field => {
+          const value = demographics[field];
+          return value === undefined || value === null || (typeof value === 'number' && isNaN(value));
+        });
+        if (missingFields.length > 0) {
+          console.error('[DEBUG] Missing required profile fields:', missingFields);
+          throw new Error(`Campos obrigatórios do perfil estão faltando: ${missingFields.join(', ')}. Por favor, preencha o formulário de perfil completamente.`);
+        }
+
+        console.log('[DEBUG] Profile validation passed:', {
+          age: demographics.age,
+          height: demographics.height,
+          weight: demographics.weight,
+          sex: demographics.sex,
+          smoking: demographics.smoking,
+          bloodPressureMedication: demographics.bloodPressureMedication,
+          diabetes: demographics.diabetes,
+        });
+
         const options: MeasurementEmbeddedAppOptions = {
           container,
           ...(language && { language }),
@@ -152,6 +207,7 @@ const Measurement = () => {
           },
           loadError: function (error) {
             console.error('[DEBUG] load error', error);
+            console.error('[DEBUG] load error details:', JSON.stringify(error, null, 2));
           },
         };
         
@@ -165,7 +221,24 @@ const Measurement = () => {
         };
         
         measurementApp.on.error = async (error) => {
-          console.log('[DEBUG] Error event received:', error.code, error.message);
+          console.error('[DEBUG] Error event received from SDK:', {
+            code: error.code,
+            message: error.message,
+            error: error,
+          });
+          
+          // Log detalhado do erro para debug
+          const errorCodeStr = String(error.code);
+          const errorMessageStr = String(error.message || '');
+          if (errorCodeStr.includes('UNEXPECTED') || errorMessageStr.includes('UNEXPECTED_ERROR')) {
+            console.error('[DEBUG] UNEXPECTED_ERROR detected. Possible causes:');
+            console.error('[DEBUG] - Invalid token or studyId');
+            console.error('[DEBUG] - Network connectivity issues');
+            console.error('[DEBUG] - API endpoint unreachable');
+            console.error('[DEBUG] - Invalid profile data');
+            console.error('[DEBUG] Full error object:', JSON.stringify(error, null, 2));
+          }
+          
           if (isCancelOnErrorCode(error.code)) {
             try {
               await measurementApp.cancel(true);
@@ -175,6 +248,9 @@ const Measurement = () => {
           }
           if (isUiErrorCode(error.code)) {
             setAppError(error);
+          } else {
+            // Para erros não-UI, ainda mostrar uma mensagem genérica
+            console.error('[DEBUG] Non-UI error occurred:', error.code, error.message);
           }
         };
         
@@ -240,8 +316,14 @@ const Measurement = () => {
         console.error('[DEBUG] Error in Measurement useEffect:', error);
         console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
         console.error('[DEBUG] Error message:', error instanceof Error ? error.message : 'Unknown error during initialization');
-        // Não definimos appError aqui porque o erro de inicialização não é um MeasurementEmbeddedAppError válido
+        
+        // Para erros de inicialização, apenas logar no console
+        // Não podemos criar um MeasurementEmbeddedAppError válido sem um ErrorCode válido
         // O erro será logado no console para debug
+        console.error('[DEBUG] Initialization error cannot be displayed as MeasurementEmbeddedAppError');
+        
+        // Opcionalmente, você pode redirecionar para o perfil ou mostrar uma mensagem genérica
+        // Por enquanto, apenas logamos o erro
       }
     })();
     

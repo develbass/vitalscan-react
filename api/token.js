@@ -62,15 +62,34 @@ export default async function handler(req, res) {
     );
     const { status, body } = registerLicense;
     console.log('[API DEBUG] registerLicense status:', status);
+    console.log('[API DEBUG] registerLicense body:', body);
+
+    // Validar se status é válido
+    if (!status) {
+      console.error('[API DEBUG] registerLicense returned null/undefined status');
+      return res.status(500).json({ 
+        status: '500', 
+        error: 'Erro ao obter token: status inválido da API' 
+      });
+    }
 
     if (status === '200') {
       const { Token, RefreshToken } = body;
       console.log('[API DEBUG] Token received successfully');
-      res.json({ status, token: Token, refreshToken: RefreshToken });
+      return res.json({ status, token: Token, refreshToken: RefreshToken });
     } else {
       console.error('[API DEBUG] registerLicense failed with status:', status);
       console.error('[API DEBUG] Error body:', body);
-      res.status(Number.parseInt(status, 10)).json({ status, error: body });
+      // Garantir que o status code seja um número válido
+      const statusCode = Number.parseInt(String(status), 10);
+      if (isNaN(statusCode) || statusCode < 100 || statusCode >= 600) {
+        // Se não conseguir converter para um status code válido, usar 500
+        return res.status(500).json({ 
+          status: '500', 
+          error: body || 'Erro desconhecido ao obter token' 
+        });
+      }
+      return res.status(statusCode).json({ status, error: body });
     }
   } catch (error) {
     console.error('[API DEBUG] Error in token handler:', error);
