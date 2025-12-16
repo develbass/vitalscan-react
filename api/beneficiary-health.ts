@@ -41,6 +41,7 @@ export default async function handler(req: any, res: any) {
 
     // Validação de variáveis de ambiente
     const API_URL = process.env.RPD_API_URL;
+    console.log('API_URL', API_URL);
     const RPDADMIN_TOKEN = process.env.RPDADMIN_TOKEN;
     const RPD_CLIENTID = process.env.RPD_CLIENTID || clientUuid;
 

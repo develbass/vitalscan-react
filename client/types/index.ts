@@ -30,6 +30,7 @@ export interface WMSConfig {
       RPDADMIN_TOKEN?: string;
       TEMA_URL?: string;
       RPD_CLIENTID?: string;
+      RPD_API_URL?: string;
     };
     onError?: (error: string) => void;
     onSuccess?: (data: any) => void;

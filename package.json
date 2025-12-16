@@ -12,8 +12,8 @@
     "typecheck:react": "tsc --noEmit --project tsconfig.json",
     "typecheck:server": "tsc --noEmit --project server/tsconfig.json",
     "typecheck": "yarn typecheck:react && yarn typecheck:server",
-    "server:dev": "node --experimental-strip-types --env-file=.env server/src/index.ts",
-    "server:prod": "NODE_ENV=production node --experimental-strip-types --env-file=.env server/src/index.ts"
+    "server:dev": "yarn build && node --experimental-strip-types --env-file=.env server/src/index.ts",
+    "server:prod": "yarn build && NODE_ENV=production node --experimental-strip-types --env-file=.env server/src/index.ts"
   },
   "keywords": [
     "Nuralogix",

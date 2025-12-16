@@ -289,6 +289,15 @@ const Measurement = () => {
           hasProfile: !!demographics,
         });
         
+        // Verificar se as APIs necessárias estão disponíveis
+        if (typeof navigator === 'undefined') {
+          throw new Error('navigator is not available');
+        }
+        
+        if (typeof navigator.mediaDevices === 'undefined') {
+          console.warn('[DEBUG] navigator.mediaDevices is not available. This may cause issues with camera access.');
+        }
+        
         try {
           console.log('[DEBUG] About to call measurementApp.init()...');
           const initResult = measurementApp.init(options);
@@ -299,6 +308,16 @@ const Measurement = () => {
           console.error('[DEBUG] Init error stack:', initError instanceof Error ? initError.stack : 'No stack');
           console.error('[DEBUG] Init error name:', initError instanceof Error ? initError.name : 'Unknown');
           console.error('[DEBUG] Init error message:', initError instanceof Error ? initError.message : String(initError));
+          
+          // Se o erro for relacionado a ondevicechange, pode ser um problema do SDK
+          if (initError instanceof Error && initError.message.includes('ondevicechange')) {
+            console.error('[DEBUG] This error is likely related to the SDK trying to access device APIs that are not available.');
+            console.error('[DEBUG] Possible causes:');
+            console.error('[DEBUG] 1. Browser does not support required APIs');
+            console.error('[DEBUG] 2. Page is not served over HTTPS (required for camera access)');
+            console.error('[DEBUG] 3. Browser permissions are blocking device access');
+          }
+          
           throw initError;
         }
         

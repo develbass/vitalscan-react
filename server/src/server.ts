@@ -11,7 +11,7 @@ import type { HealthInformationsPayload } from '../../client/utils/rapidocApiCli
 
 const { DeviceTypeID } = enums;
 const distPath = fileURLToPath(new URL('../../dist/', import.meta.url));
-const { API_URL, LICENSE_KEY, STUDY_ID, RPDADMIN_TOKEN, TEMA_URL, RPD_CLIENTID } = process.env;
+const { API_URL, LICENSE_KEY, STUDY_ID, RPDADMIN_TOKEN, TEMA_URL, RPD_CLIENTID, RPD_API_URL } = process.env;
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 
 function requireEnv(name: string, value: string | undefined): string {
@@ -26,6 +26,7 @@ export default class Server {
   appPath = distPath;
   port: number;
   apiUrl = requireEnv('API_URL', API_URL);
+  rpdApiUrl = requireEnv('RPD_API_URL', RPD_API_URL);
   studyId = requireEnv('STUDY_ID', STUDY_ID);
   licenseKey = requireEnv('LICENSE_KEY', LICENSE_KEY);
   apiClient = client({
@@ -36,7 +37,7 @@ export default class Server {
   });
   rapidocApiClient = new RapidocApiClient({
     environments: {
-      API_URL,
+      RPD_API_URL: RPD_API_URL,
       RPDADMIN_TOKEN,
       TEMA_URL,
       RPD_CLIENTID,

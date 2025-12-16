@@ -53,13 +53,14 @@ export class RapidocApiClient {
     beneficiaryUuid: string,
     clientUuid: string
   ): Promise<ValidateTokenResponse> {
-    const { RPDADMIN_TOKEN, TEMA_URL, RPD_CLIENTID, API_URL } = this.config || {};
+    const { RPDADMIN_TOKEN, TEMA_URL, RPD_CLIENTID, RPD_API_URL } = this.config || {};
 
     console.log('config', this.config);
 
     console.log('rapidocToken', RPDADMIN_TOKEN);
     console.log('temaApiUrl', TEMA_URL);
     console.log('headerClientUuid', RPD_CLIENTID);
+    console.log('rpdApiUrl', RPD_API_URL);
 
     if (!RPD_CLIENTID) {
       throw new Error('clientUuid é obrigatório. Configure NEXT_PUBLIC_RPD_CLIENTID no .env.');
@@ -123,10 +124,10 @@ export class RapidocApiClient {
     beneficiaryUuid: string,
     clientUuid?: string
   ): Promise<any> {
-    const { API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
+    const { RPD_API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
     const urlClientUuid = clientUuid || RPD_CLIENTID;
 
-    if (!API_URL) {
+    if (!RPD_API_URL) {
       throw new Error('URL da API Rapidoc é obrigatória. Configure API_URL no .env.');
     }
 
@@ -138,7 +139,7 @@ export class RapidocApiClient {
       throw new Error('clientUuid é obrigatório. Configure NEXT_PUBLIC_RPD_CLIENTID no .env ou passe como parâmetro.');
     }
 
-    const healthInfoUrl = `${API_URL}v1/beneficiary-health-informations`;
+    const healthInfoUrl = `${RPD_API_URL}v1/beneficiary-health-informations`;
     const requestUrl = `${healthInfoUrl}?beneficiaryUuid=${encodeURIComponent(beneficiaryUuid)}&clientUuid=${encodeURIComponent(urlClientUuid)}`;
 
     const headers = {
@@ -232,10 +233,10 @@ export class RapidocApiClient {
     data: HealthInformationsPayload,
     clientUuid?: string
   ): Promise<any> {
-    const { API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
+    const { RPD_API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
     const urlClientUuid = clientUuid || RPD_CLIENTID;
 
-    if (!API_URL) {
+    if (!RPD_API_URL) {
       throw new Error('URL da API Rapidoc é obrigatória. Configure API_URL no .env.');
     }
 
@@ -326,7 +327,7 @@ export class RapidocApiClient {
       diabetes: normalizeDiabetes(data.diabetes),
     };
 
-    const apiUrl = API_URL + 'v1/beneficiary-health-informations';
+    const apiUrl = RPD_API_URL + 'v1/beneficiary-health-informations';
     
     const finalUrl = `${apiUrl}?clientUuid=${urlClientUuid}`;
 
@@ -374,7 +375,7 @@ export class RapidocApiClient {
     clientUuid?: string,
     clientUuidParam?: string
   ): Promise<any> {
-    const { API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
+    const { RPD_API_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
     const finalClientUuid = clientUuid || RPD_CLIENTID;
     const urlClientUuid = clientUuidParam || finalClientUuid;
 
@@ -386,7 +387,7 @@ export class RapidocApiClient {
       throw new Error('beneficiary.uuid é obrigatório. Configure BENEFICIARY_UUID no .env ou passe como parâmetro.');
     }
 
-    if (!API_URL) {
+    if (!RPD_API_URL) {
       throw new Error('URL da API Rapidoc é obrigatória. Configure API_URL no .env.');
     }
 
@@ -399,7 +400,7 @@ export class RapidocApiClient {
       beneficiary,
     };
 
-    const finalUrl = `${API_URL}v1/beneficiary-scans?clientUuid=${urlClientUuid}`;
+    const finalUrl = `${RPD_API_URL}v1/beneficiary-scans?clientUuid=${urlClientUuid}`;
 
     const headers = {
       'Authorization': `Bearer ${RPDADMIN_TOKEN}`,

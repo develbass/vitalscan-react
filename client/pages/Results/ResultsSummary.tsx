@@ -158,7 +158,8 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ results }) => {
   const { t } = useTranslation();
   const { theme } = useSnapshot(state.general);
   const isDark = theme === 'dark';
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+  console.log('results', results);
 
   const getGroupLabel = (group: PointGroupType): string => t(GROUP_I18N_KEY_MAP[group]);
 
