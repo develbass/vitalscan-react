@@ -319,6 +319,9 @@ export default class Server {
       }
     });
 
+    // Proxy para o endpoint save-results - funciona tanto no localhost quanto na Vercel
+    // Na Vercel, o arquivo api/save-results.ts será usado automaticamente
+    // No localhost, este endpoint Express será usado
     this.app.post('/api/save-results', async (req: Request, res: Response) => {
       try {
         const body = req.body as {
