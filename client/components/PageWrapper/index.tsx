@@ -8,7 +8,7 @@ interface PageWrapperProps {
 const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
   return (
     <>
-      <Navbar />
+    {/* <Navbar /> */}
       {children}
     </>
   );

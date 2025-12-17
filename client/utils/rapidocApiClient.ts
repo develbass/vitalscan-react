@@ -34,6 +34,7 @@ export interface HealthInformationsPayload {
 
 export interface ValidateTokenResponse {
   allowBeneficiaryScan: boolean;
+  beneficiaryUuid?: string;
   beneficiaryScanUuid?: string;
   clientUuid?: string;
 }
@@ -434,7 +435,8 @@ export class RapidocApiClient {
     resultsObj: any,
     beneficiary: Beneficiary,
     clientUuid?: string,
-    clientUuidParam?: string
+    clientUuidParam?: string,
+    token?: string
   ): Promise<boolean> {
     const { TEMA_URL, RPDADMIN_TOKEN, RPD_CLIENTID } = this.config || {};
     const finalClientUuid = clientUuid || RPD_CLIENTID;
@@ -466,12 +468,13 @@ export class RapidocApiClient {
 
     const finalUrl = `${TEMA_URL}beneficiary-scans/${resultsObj.uuid}?clientUuid=${clientUuidParam || finalClientUuid}`;
 
-    const headers = {
+    const headers: Record<string, string> = {
       'Authorization': `Bearer ${RPDADMIN_TOKEN}`,
       'Content-Type': 'application/vnd.rapidoc.tema-v2+json',
       'consumes': 'application/json',
       'clientId': finalClientUuid,
     };
+
 
     logCurlRequest(finalUrl, {
       method: 'PUT',

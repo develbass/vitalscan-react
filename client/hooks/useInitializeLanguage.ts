@@ -3,40 +3,30 @@ import { SupportedLanguage } from '../types';
 import { supportedLanguages } from '../language/constants';
 import initI18n from '../language/i18n';
 import state from '../state';
+import i18n from 'i18next';
 
 /**
- * Determines the best supported language from browser settings.
- * Tries exact match (pt-BR) → base language (pt) → fallback to English.
- */
-const getDefaultLanguage = (): SupportedLanguage => {
-  const browserLang = navigator.language;
-
-  if (supportedLanguages.includes(browserLang)) {
-    return browserLang as SupportedLanguage;
-  }
-
-  const baseLang = browserLang.split('-')[0];
-  if (supportedLanguages.includes(baseLang)) {
-    return baseLang as SupportedLanguage;
-  }
-
-  return 'en';
-};
-
-/**
- * Initializes i18n with the best available language.
- * Priority: validated user preference → browser language → English.
+ * Initializes i18n with pt-BR as default language.
  */
 export const useInitializeLanguage = (): boolean => {
   const [isLangInitialized, setIsLangInitialized] = useState(false);
 
   useEffect(() => {
-    const language = state.general.language;
-    const lng = language && supportedLanguages.includes(language) ? language : getDefaultLanguage();
+    // Força pt-BR como padrão
+    const lng: SupportedLanguage = 'pt-BR';
+    
+    // Salva no localStorage
+    localStorage.setItem('language', lng);
 
-    initI18n(`/language/strings.{{lng}}.json`, lng).then(() => {
+    // Inicializa o i18n (os recursos já estão carregados via import)
+    initI18n('', lng).then(() => {
       setIsLangInitialized(true);
       state.general.setLanguage(lng);
+      console.log('[i18n] Inicializado com idioma:', lng);
+      console.log('[i18n] Idioma atual do i18n:', i18n.language);
+    }).catch((error) => {
+      console.error('[i18n] Erro ao inicializar:', error);
+      setIsLangInitialized(true);
     });
   }, []);
 

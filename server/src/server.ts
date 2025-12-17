@@ -319,6 +319,86 @@ export default class Server {
       }
     });
 
+    this.app.post('/api/save-results', async (req: Request, res: Response) => {
+      try {
+        const body = req.body as {
+          beneficiary?: { uuid?: string };
+          uuid?: string;
+          clientUuid?: string;
+          token?: string;
+          [key: string]: any;
+        };
+
+        // Validações obrigatórias
+        if (!body.beneficiary?.uuid) {
+          return res.status(400).json({
+            status: '400',
+            error: 'beneficiary.uuid é obrigatório no corpo da requisição',
+          });
+        }
+
+        if (!body.uuid) {
+          return res.status(400).json({
+            status: '400',
+            error: 'uuid é obrigatório no corpo da requisição',
+          });
+        }
+
+        // Validar formato dos UUIDs
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(body.beneficiary.uuid)) {
+          return res.status(400).json({
+            status: '400',
+            error: 'beneficiary.uuid deve estar no formato UUID válido',
+          });
+        }
+
+        if (!uuidRegex.test(body.uuid)) {
+          return res.status(400).json({
+            status: '400',
+            error: 'uuid deve estar no formato UUID válido',
+          });
+        }
+
+        // Preparar dados para envio
+        const beneficiary = {
+          uuid: body.beneficiary.uuid,
+        };
+
+        // Extrair todos os campos do body exceto beneficiary, clientUuid e token para o resultsObj
+        const { beneficiary: _, clientUuid, token, ...resultsObj } = body;
+        resultsObj.uuid = body.uuid; // Garantir que uuid está no resultsObj
+
+        // Chamar updateResults do RapidocApiClient
+        const success = await this.rapidocApiClient.updateResults(
+          resultsObj,
+          beneficiary,
+          clientUuid,
+          clientUuid,
+          token
+        );
+
+        if (success) {
+          return res.status(200).json({
+            status: '200',
+            message: 'Resultados salvos com sucesso na Rapidoc',
+          });
+        } else {
+          return res.status(500).json({
+            status: '500',
+            error: 'Erro ao salvar resultados na Rapidoc',
+          });
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Erro ao salvar resultados na Rapidoc:', error);
+        return res.status(500).json({
+          status: '500',
+          error: message,
+        });
+      }
+    });
+
     this.app.use('/', express.static(this.appPath));
     this.app.use('/', express.static(join(this.appPath, 'wmea')));
     this.app.get('/*name', (_req: Request, res: Response) => {

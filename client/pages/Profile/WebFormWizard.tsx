@@ -41,7 +41,7 @@ const styles = stylex.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: '16px',
-    marginBottom: '16px',
+    marginBottom: '36px',
   },
   introMessage: {
     marginBottom: '24px',
@@ -75,11 +75,7 @@ const FormWizard = () => {
     <div {...stylex.props(styles.wrapper)}>
       <Card xstyle={styles.card}>
         <div {...stylex.props(styles.headerRow)}>
-          <Heading>
-            {currentStep === WIZARD_STEPS.PROFILE
-              ? t('PROFILE_FORM_STEP_1_TITLE')
-              : t('PROFILE_FORM_STEP_2_TITLE')}
-          </Heading>
+          
           <Button
             variant="link"
             type="button"

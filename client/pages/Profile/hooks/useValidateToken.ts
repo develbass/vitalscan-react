@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 export interface ValidateTokenResponse {
   allowBeneficiaryScan: boolean;
+  beneficiaryUuid?: string;
   beneficiaryScanUuid?: string;
   clientUuid?: string;
 }
@@ -56,6 +57,22 @@ export const useValidateToken = (): UseValidateTokenResult => {
         const result: ValidateTokenResponse = await response.json();
         setData(result);
         setIsValid(result.allowBeneficiaryScan);
+        
+        // Salvar no localStorage quando a validação for bem-sucedida
+        if (result.allowBeneficiaryScan) {
+          // Salvar o token
+          localStorage.setItem('token', token);
+          
+          if (result.beneficiaryUuid) {
+            localStorage.setItem('beneficiaryUuid', result.beneficiaryUuid);
+          }
+          if (result.clientUuid) {
+            localStorage.setItem('clientUuid', result.clientUuid);
+          }
+          if (result.beneficiaryScanUuid) {
+            localStorage.setItem('beneficiaryScanUuid', result.beneficiaryScanUuid);
+          }
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Erro ao validar token';
         setError(errorMessage);

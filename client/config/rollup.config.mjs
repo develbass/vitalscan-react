@@ -4,6 +4,7 @@ import esbuild from 'rollup-plugin-esbuild';
 import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import json from '@rollup/plugin-json';
 import del from 'rollup-plugin-delete';
 import postcss from 'rollup-plugin-postcss';
 import html from '@rollup/plugin-html';
@@ -13,11 +14,6 @@ import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import { writeFileSync } from 'fs';
 import postcssImport from 'postcss-import';
 import stylexPlugin from '@stylexjs/rollup-plugin';
-
-// Ensure NODE_ENV is set (default to production for builds)
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'production';
-}
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const distFolder = './dist';
@@ -37,8 +33,10 @@ const config = [
     ],
     plugins: [
       del({ targets: deleteTargets, force: true }),
+      // Enable JSON imports
+      json(),
       // React checks process.env.NODE_ENV for a production or development value and
-      // Rollup isn’t providing any. @rollup/plugin-replace is used to provide this information
+      // Rollup isn't providing any. @rollup/plugin-replace is used to provide this information
       replace({
         preventAssignment: true,
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -77,11 +75,10 @@ const config = [
       html({
         fileName: 'index.html',
         template: ({ bundle, files }) => {
-          const cssFile = files.css && files.css[0] ? files.css[0].fileName : '';
           return getpageTemplate(
             'Web Measurement Embedded App',
             Object.keys(bundle)[0],
-            cssFile
+            files.css[0].fileName
           );
         },
       }),
