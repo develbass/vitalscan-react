@@ -1,5 +1,3 @@
-import { RapidocApiClient } from '../client/utils/rapidocApiClient';
-
 export default async function handler(req: any, res: any) {
   console.log('[API DEBUG] save-results handler called');
   console.log('[API DEBUG] Method:', req.method);
@@ -87,16 +85,6 @@ export default async function handler(req: any, res: any) {
       });
     }
 
-    // Criar instância do RapidocApiClient
-    const rapidocApiClient = new RapidocApiClient({
-      environments: {
-        RPD_API_URL: process.env.RPD_API_URL,
-        RPDADMIN_TOKEN,
-        TEMA_URL,
-        RPD_CLIENTID,
-      },
-    });
-
     // Preparar dados para envio
     const beneficiary = {
       uuid: body.beneficiary.uuid,
@@ -106,26 +94,72 @@ export default async function handler(req: any, res: any) {
     const { beneficiary: _, clientUuid, token, ...resultsObj } = body;
     resultsObj.uuid = body.uuid; // Garantir que uuid está no resultsObj
 
-    // Chamar updateResults do RapidocApiClient
-    const success = await rapidocApiClient.updateResults(
-      resultsObj,
-      beneficiary,
-      clientUuid,
-      clientUuid,
-      token
-    );
+    // Garantir que TEMA_URL tenha protocolo e barra final
+    let baseUrl = TEMA_URL.trim();
+    if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    if (!baseUrl.endsWith('/')) {
+      baseUrl = `${baseUrl}/`;
+    }
 
-    if (success) {
-      return res.status(200).json({
-        status: '200',
-        message: 'Resultados salvos com sucesso na Rapidoc',
-      });
-    } else {
+    const finalClientUuid = clientUuid || RPD_CLIENTID;
+    const finalUrl = `${baseUrl}beneficiary-scans/${resultsObj.uuid}?clientUuid=${finalClientUuid}`;
+
+    // Validar se a URL é válida
+    try {
+      new URL(finalUrl);
+    } catch (urlError) {
       return res.status(500).json({
         status: '500',
-        error: 'Falha ao salvar resultados na Rapidoc',
+        error: `URL inválida construída: ${finalUrl}. Erro: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`
       });
     }
+
+    const payload = {
+      ...resultsObj,
+      beneficiary,
+    };
+
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${RPDADMIN_TOKEN}`,
+      'Content-Type': 'application/vnd.rapidoc.tema-v2+json',
+      'consumes': 'application/json',
+      'clientId': finalClientUuid,
+    };
+
+    // Adicionar token se fornecido
+    if (token) {
+      headers['token'] = token;
+    }
+
+    console.log('[API DEBUG] Calling update URL:', finalUrl);
+
+    const response = await fetch(finalUrl, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status !== 204) {
+      let errorBody = '';
+      try {
+        errorBody = await response.text();
+        console.error('[API DEBUG] Resposta de erro da API externa:', errorBody);
+      } catch (e) {
+        console.error('[API DEBUG] Não foi possível ler o corpo da resposta de erro');
+      }
+
+      return res.status(response.status).json({
+        status: String(response.status),
+        error: `Erro ao atualizar resultado na API externa: ${response.status} ${response.statusText}. Detalhes: ${errorBody}`
+      });
+    }
+
+    return res.status(200).json({
+      status: '200',
+      message: 'Resultados salvos com sucesso na Rapidoc',
+    });
   } catch (error) {
     console.error('[API DEBUG] Error in save-results handler:', error);
     const message = error instanceof Error ? error.message : 'Unknown error';

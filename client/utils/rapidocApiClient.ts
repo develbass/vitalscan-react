@@ -475,6 +475,10 @@ export class RapidocApiClient {
       'clientId': finalClientUuid,
     };
 
+    // Adicionar token se fornecido
+    if (token) {
+      headers['token'] = token;
+    }
 
     logCurlRequest(finalUrl, {
       method: 'PUT',
