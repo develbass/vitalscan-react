@@ -135,7 +135,7 @@ export default async function handler(req: any, res: any) {
       headers['token'] = token;
     }
 
-    console.log('[API DEBUG] Calling update URL:', finalUrl);
+    console.log('[API DEBUG] Calling update URLllll:', finalUrl);
 
     logCurlRequest(finalUrl, {
       method: 'PUT',

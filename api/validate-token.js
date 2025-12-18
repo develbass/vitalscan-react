@@ -77,24 +77,22 @@ export default async function handler(req, res) {
       });
     }
 
-    // Garantir que TEMA_URL tenha protocolo e barra final
+    // Construir URL usando API WHATWG URL (moderna e segura)
     let baseUrl = TEMA_URL.trim();
     if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
       baseUrl = `https://${baseUrl}`;
     }
-    if (!baseUrl.endsWith('/')) {
-      baseUrl = `${baseUrl}/`;
-    }
 
-    const validateUrl = `${baseUrl}beneficiary-scans/validate-vitalscan?beneficiaryUuid=${beneficiaryUuid}&clientUuid=${clientUuid}`;
-
-    // Validar se a URL é válida
+    let validateUrl;
     try {
-      new URL(validateUrl);
+      const urlObj = new URL('beneficiary-scans/validate-vitalscan', baseUrl);
+      urlObj.searchParams.set('beneficiaryUuid', beneficiaryUuid);
+      urlObj.searchParams.set('clientUuid', clientUuid);
+      validateUrl = urlObj.toString();
     } catch (urlError) {
       return res.status(500).json({
         status: '500',
-        error: `URL inválida construída: ${validateUrl}. Erro: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`
+        error: `Erro ao construir URL: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`
       });
     }
 
