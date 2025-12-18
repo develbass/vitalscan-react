@@ -26,16 +26,16 @@ const Profile = () => {
   // Se a validação foi concluída e allowBeneficiaryScan é false, mostra mensagem de acesso negado
   // Verifica se há dados de validação e se allowBeneficiaryScan é explicitamente false
   if (data !== null && data.allowBeneficiaryScan === false) {
-    //return <AccessDenied />;
+    return <AccessDenied />;
   }
 
   // Se isValid é false (erro na validação), também mostra acesso negado
   if (isValid === false) {
-    //return <AccessDenied />;
+    return <AccessDenied />;
   }
 
   if (data === null) {
-    //return <AccessDenied />;
+    return <AccessDenied />;
   }
 
   // Se isValid é true ou null (não há parâmetros na URL ou validação bem-sucedida), mostra o formulário normalmente
