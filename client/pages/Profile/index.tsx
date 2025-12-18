@@ -35,7 +35,7 @@ const Profile = () => {
   }
 
   if (data === null) {
-    return <AccessDenied />;
+    //return <AccessDenied />;
   }
 
   // Se isValid é true ou null (não há parâmetros na URL ou validação bem-sucedida), mostra o formulário normalmente
