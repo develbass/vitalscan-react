@@ -1,5 +1,3 @@
-import { logCurlRequest } from "../client/utils/networkUtils";
-
 export default async function handler(req: any, res: any) {
   console.log('[API DEBUG] save-results handler called');
   console.log('[API DEBUG] Method:', req.method);
@@ -135,13 +133,9 @@ export default async function handler(req: any, res: any) {
       headers['token'] = token;
     }
 
-    console.log('[API DEBUG] Calling update URLllll:', finalUrl);
-
-    logCurlRequest(finalUrl, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(payload),
-    });
+    console.log('[API DEBUG] Calling update URL:', finalUrl);
+    console.log('[API DEBUG] Request payload:', JSON.stringify(payload, null, 2));
+    console.log('[API DEBUG] Request headers:', JSON.stringify(headers, null, 2));
 
     const response = await fetch(finalUrl, {
       method: 'PUT',

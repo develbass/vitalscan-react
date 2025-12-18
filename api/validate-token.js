@@ -107,6 +107,11 @@ export default async function handler(req, res) {
 
     console.log('[API DEBUG] Calling validate URL:', validateUrl);
 
+    logCurlRequest(validateUrl, {
+      method: 'GET',
+      headers,
+    });
+
     const response = await fetch(validateUrl, {
       method: 'GET',
       headers,
@@ -127,7 +132,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    console.log('[API DEBUG] Token validated successfully -------------');
+    console.log('[API DEBUG] Token validated successfully ------------- ******');
     return res.json(data);
   } catch (error) {
     console.error('[API DEBUG] Error in validate-token handler:', error);
