@@ -127,7 +127,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    console.log('[API DEBUG] Token validated successfully');
+    console.log('[API DEBUG] Token validated successfully -------------');
     return res.json(data);
   } catch (error) {
     console.error('[API DEBUG] Error in validate-token handler:', error);
