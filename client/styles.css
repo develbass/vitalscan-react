@@ -15,44 +15,103 @@ body,
   text-rendering: optimizeLegibility;
 }
 
+/* Wrapper do container de medição */
+.measurement-wrapper {
+  flex: 1;
+  position: relative;
+  padding: 16px;
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
 #measurement-embedded-app-container {
-  position: fixed;
-  top: 60px;
-  left: 0;
-  width: 100vw;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
-  overflow-x: hidden;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+@media (max-width: 768px) {
+  .measurement-wrapper {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .measurement-wrapper {
+    padding: 4px;
+  }
+}
+
+/* Forçar todos os elementos do SDK a usarem box-sizing correto */
+#measurement-embedded-app-container *,
+#measurement-embedded-app-container *::before,
+#measurement-embedded-app-container *::after {
+  box-sizing: border-box !important;
+}
+
+/* Garantir que iframes sejam responsivos */
+#measurement-embedded-app-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: none !important;
 }
 
 /* Estilos responsivos para o SDK de medição */
 @media (max-width: 768px) {
   #measurement-embedded-app-container {
     padding: 8px !important;
+    min-height: calc(100vh - 68px) !important;
+    font-size: 14px !important;
   }
   
   /* Garantir que os elementos internos do SDK se ajustem */
-  #measurement-embedded-app-container > * {
+  #measurement-embedded-app-container > *,
+  #measurement-embedded-app-container > * > * {
     max-width: 100% !important;
-    box-sizing: border-box !important;
   }
   
-  /* Ajustar dropdowns e controles do SDK */
+  /* Forçar que todos os filhos diretos sejam visíveis e se ajustem */
+  #measurement-embedded-app-container > div,
+  #measurement-embedded-app-container > section,
+  #measurement-embedded-app-container > main {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  
+  /* Ajustar controles específicos do SDK */
   #measurement-embedded-app-container select,
-  #measurement-embedded-app-container button {
+  #measurement-embedded-app-container button:not([class*="icon"]):not([aria-label*="icon"]) {
     min-height: 44px !important;
     font-size: 16px !important;
     padding: 10px 16px !important;
-  }
-  
-  /* Garantir que os controles da câmera fiquem visíveis */
-  #measurement-embedded-app-container [class*="camera"],
-  #measurement-embedded-app-container [class*="control"],
-  #measurement-embedded-app-container [class*="select"],
-  #measurement-embedded-app-container [class*="dropdown"] {
     width: 100% !important;
     max-width: 100% !important;
-    overflow: visible !important;
+    display: block !important;
+    margin: 8px 0 !important;
+  }
+  
+  /* Garantir que vídeo e canvas sejam responsivos */
+  #measurement-embedded-app-container video,
+  #measurement-embedded-app-container canvas {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Ajustar containers flex dentro do SDK */
+  #measurement-embedded-app-container [style*="display: flex"],
+  #measurement-embedded-app-container [style*="display:flex"] {
+    flex-wrap: wrap !important;
   }
 }
 

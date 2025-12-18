@@ -260,6 +260,39 @@ const Measurement = () => {
             case appEvents.APP_LOADED:
               console.log('[DEBUG] APP_LOADED event received, marking as initialized');
               setIsInitialized(true);
+              
+              // Injetar CSS responsivo diretamente no container após carregamento
+              try {
+                const sdkContainer = document.getElementById('measurement-embedded-app-container');
+                if (sdkContainer) {
+                  // Adicionar um style element diretamente no container do SDK
+                  const styleElement = document.createElement('style');
+                  styleElement.textContent = `
+                    @media (max-width: 768px) {
+                      * { max-width: 100% !important; box-sizing: border-box !important; }
+                      select, button { 
+                        min-height: 44px !important; 
+                        font-size: 16px !important; 
+                        padding: 10px 16px !important; 
+                        width: 100% !important; 
+                        display: block !important;
+                        margin: 8px 0 !important;
+                      }
+                      video, canvas { max-width: 100% !important; width: 100% !important; height: auto !important; }
+                      [style*="display: flex"], [style*="display:flex"] { flex-wrap: wrap !important; }
+                    }
+                  `;
+                  sdkContainer.appendChild(styleElement);
+                  console.log('[DEBUG] Responsive CSS injected into SDK container');
+                  
+                  // Forçar reflow para aplicar estilos
+                  sdkContainer.style.display = 'none';
+                  sdkContainer.offsetHeight; // trigger reflow
+                  sdkContainer.style.display = 'block';
+                }
+              } catch (error) {
+                console.warn('[DEBUG] Failed to inject responsive CSS:', error);
+              }
               break;
             case appEvents.CAMERA_PERMISSION_GRANTED:
               console.log('[DEBUG] Camera permission granted');
@@ -413,16 +446,7 @@ const Measurement = () => {
       {/* Container será anexado aqui pelo código de inicialização */}
       <div 
         data-measurement-container 
-        style={{ 
-          flex: 1, 
-          position: 'relative', 
-          padding: '16px', 
-          backgroundColor: '#fff',
-          width: '100%',
-          height: '100%',
-          overflow: 'auto',
-          boxSizing: 'border-box'
-        }} 
+        className="measurement-wrapper"
       />
     </div>
   );
