@@ -34,16 +34,10 @@ const ResultsComponent = () => {
 
   // Enviar resultados para Rapidoc quando disponíveis
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:36',message:'useEffect triggered for save-results',data:{hasResults:!!results,hasResultsData:!!resultsData,resultsKeys:results?Object.keys(results):null,resultsDataKeys:resultsData?Object.keys(resultsData).slice(0,5):null,currentUrl:typeof window!=='undefined'?window.location.href:null},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-
     if (!results || !resultsData) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:40',message:'Early return - missing results or resultsData',data:{hasResults:!!results,hasResultsData:!!resultsData},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       return;
     }
+    console.log('results', resultsData);
 
     const sendResultsToRapidoc = async () => {
       try {
@@ -51,10 +45,6 @@ const ResultsComponent = () => {
         const searchParams = new URLSearchParams(window.location.search);
         let beneficiaryUuid = searchParams.get('beneficiaryUuid');
         let clientUuid = searchParams.get('clientUuid');
-
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:50',message:'URL and localStorage check',data:{beneficiaryUuidFromUrl:searchParams.get('beneficiaryUuid'),clientUuidFromUrl:searchParams.get('clientUuid'),beneficiaryUuidFromLocalStorage:localStorage.getItem('beneficiaryUuid'),clientUuidFromLocalStorage:localStorage.getItem('clientUuid'),beneficiaryScanUuidFromLocalStorage:localStorage.getItem('beneficiaryScanUuid'),finalBeneficiaryUuid:beneficiaryUuid,finalClientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
 
         // Se não tiver beneficiaryUuid na URL, buscar do localStorage (salvo após validação do token)
         if (!beneficiaryUuid) {
@@ -69,15 +59,8 @@ const ResultsComponent = () => {
         // Buscar token do localStorage
         const token = localStorage.getItem('token') || null;
 
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:66',message:'Final beneficiaryUuid, clientUuid and token',data:{beneficiaryUuid:beneficiaryUuid,clientUuid:clientUuid,token:token,fromUrl:!!searchParams.get('beneficiaryUuid'),fromLocalStorage:!!localStorage.getItem('beneficiaryUuid'),hasToken:!!token},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
-
         // Se não tiver beneficiaryUuid, não envia (não é obrigatório)
         if (!beneficiaryUuid) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:72',message:'beneficiaryUuid not found in URL or identifier',data:{fullUrl:window.location.href,searchParams:window.location.search,identifier:(results as any).identifier,resultsKeys:Object.keys(results as any)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           console.log('[Results] beneficiaryUuid não encontrado na URL nem no identifier, pulando envio para Rapidoc');
           return;
         }
@@ -92,14 +75,7 @@ const ResultsComponent = () => {
         // Extrair measurementId do objeto results (pode estar em measurementId ou identifier)
         const scanUuid = localStorage.getItem('beneficiaryScanUuid')
 
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:66',message:'Scan UUID extraction',data:{scanUuid:scanUuid,hasMeasurementId:!!(results as any).measurementId,hasIdentifier:!!(results as any).identifier,hasUuid:!!(results as any).uuid,resultsKeys:Object.keys(results as any).slice(0,10)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
-
         if (!scanUuid) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:72',message:'Scan UUID not found',data:{resultsKeys:Object.keys(results as any),resultsSample:JSON.stringify(results).substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
-          // #endregion
           console.error('[Results] UUID do scan não encontrado no objeto results');
           return;
         }
@@ -173,17 +149,9 @@ const ResultsComponent = () => {
           ...(token && { token }),
         };
 
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:145',message:'Payload prepared for save-results',data:{payloadKeys:Object.keys(payload),payloadSize:JSON.stringify(payload).length,hasBeneficiary:!!payload.beneficiary,hasUuid:!!payload.uuid,transformedDataKeys:Object.keys(transformedData).slice(0,10)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
-
         console.log('[Results] Enviando resultados para Rapidoc:', payload);
 
         // Chamar endpoint save-results
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:152',message:'About to call save-results endpoint',data:{endpoint:'/api/save-results',method:'POST'},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
-
         const response = await fetch('/api/save-results', {
           method: 'POST',
           headers: {
@@ -192,27 +160,14 @@ const ResultsComponent = () => {
           body: JSON.stringify(payload),
         });
 
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:163',message:'Response received from save-results',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
-
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:168',message:'Error response from save-results',data:{status:response.status,errorData:errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
-          // #endregion
           throw new Error(errorData.error || `Erro ${response.status}: ${response.statusText}`);
         }
 
         const result = await response.json();
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:175',message:'Successfully saved results to Rapidoc',data:{result:result},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         console.log('[Results] Resultados salvos com sucesso na Rapidoc:', result);
       } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Results/index.tsx:180',message:'Exception caught in sendResultsToRapidoc',data:{error:error instanceof Error?error.message:String(error),errorStack:error instanceof Error?error.stack:null},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'F'})}).catch(()=>{});
-        // #endregion
         console.error('[Results] Erro ao salvar resultados na Rapidoc:', error);
         // Não interrompe a renderização, apenas loga o erro
       }
@@ -873,17 +828,46 @@ const ResultsComponent = () => {
   } as const;
 
   const styles = useMemo(() => `
-.vs-results { width: 100%; max-width: none; }
-.vs-results h1, .vs-results h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-.vs-results .result-container { background: #fff; border-radius: 8px; margin-top: 20px; width: 100%; }
-.vs-results .section-group { margin: 25px 0; width: 100%; }
-.vs-results .section-title { color: #0066cc; margin-top: 0; margin-bottom: 16px; font-size: 1.3em; }
+* { box-sizing: border-box; }
+.vs-results { 
+  width: 100%; 
+  max-width: 100%; 
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+.vs-results h1, .vs-results h2 { 
+  color: #333; 
+  border-bottom: 2px solid #eee; 
+  padding-bottom: 10px; 
+  box-sizing: border-box;
+}
+.vs-results .result-container { 
+  background: #fff; 
+  border-radius: 8px; 
+  margin-top: 20px; 
+  width: 100%; 
+  box-sizing: border-box;
+  padding: 0;
+}
+.vs-results .section-group { 
+  margin: 25px 0; 
+  width: 100%; 
+  box-sizing: border-box;
+}
+.vs-results .section-title { 
+  color: #0066cc; 
+  margin-top: 0; 
+  margin-bottom: 16px; 
+  font-size: 1.3em; 
+  box-sizing: border-box;
+}
 .vs-results .card-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
   gap: 20px; 
   width: 100%; 
   max-width: 100%;
+  box-sizing: border-box;
 }
 .vs-results .metric-card { 
   background-color: #66D89D; 
@@ -897,14 +881,46 @@ const ResultsComponent = () => {
   position: relative; 
   transition: all 0.3s ease;
   min-height: 200px;
+  width: 100%;
 }
 .vs-results .metric-card:hover { transform: translateY(-2px); }
-.vs-results .header { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 600; margin-bottom: 24px; color: black; width: 100%; }
+.vs-results .header { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+  font-size: 20px; 
+  font-weight: 600; 
+  margin-bottom: 24px; 
+  color: black; 
+  width: 100%;
+  box-sizing: border-box;
+}
 .vs-results .header .icon { font-size: 24px; }
-.vs-results .value { font-size: 48px; font-weight: bold; line-height: 1; color: black; }
-.vs-results .unit { font-size: 24px; margin-left: 4px; color: black; }
-.vs-results .range { font-size: 14px; margin-top: 8px; color: black; }
-.vs-results .status { font-size: 20px; font-weight: 600; margin-top: 24px; color: black; }
+.vs-results .value { 
+  font-size: 48px; 
+  font-weight: bold; 
+  line-height: 1; 
+  color: black;
+  word-break: break-word;
+}
+.vs-results .unit { 
+  font-size: 24px; 
+  margin-left: 4px; 
+  color: black; 
+}
+.vs-results .range { 
+  font-size: 14px; 
+  margin-top: 8px; 
+  color: black;
+  word-break: break-word;
+}
+.vs-results .status { 
+  font-size: 20px; 
+  font-weight: 600; 
+  margin-top: 24px; 
+  color: black;
+  word-break: break-word;
+}
 
 /* Responsividade melhorada */
 @media (min-width: 1400px) { 
@@ -931,15 +947,72 @@ const ResultsComponent = () => {
     gap: 16px;
   } 
   .vs-results .metric-card { 
-    padding: 24px; 
+    padding: 20px; 
     min-height: 180px;
   } 
-  .vs-results .header { font-size: 18px; } 
+  .vs-results .header { 
+    font-size: 18px;
+    gap: 8px;
+  } 
   .vs-results .value { font-size: 36px; } 
   .vs-results .unit { font-size: 20px; } 
   .vs-results h1, .vs-results h2 { font-size: 1.15em; } 
   .vs-results .section-title { font-size: 1.08em; } 
-  .vs-results .result-container { padding: 16px; } 
+  .vs-results .result-container { padding: 0; } 
+  .vs-results .range { font-size: 13px; }
+  .vs-results .status { font-size: 18px; }
+}
+
+@media (max-width: 480px) {
+  .vs-results .card-grid { 
+    gap: 12px;
+  }
+  .vs-results .metric-card { 
+    padding: 16px; 
+    min-height: 160px;
+  }
+  .vs-results .section-group {
+    margin: 20px 0;
+  }
+  .vs-results .header { 
+    font-size: 16px;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .vs-results .header .icon { 
+    font-size: 20px; 
+  }
+  .vs-results .value { 
+    font-size: 32px; 
+  }
+  .vs-results .unit { 
+    font-size: 18px; 
+  }
+  .vs-results .range { 
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .vs-results .status { 
+    font-size: 16px;
+    margin-top: 16px;
+  }
+  .vs-results .section-title { 
+    font-size: 1em;
+    margin-bottom: 12px;
+  }
+}
+
+/* Container externo responsivo */
+@media (max-width: 767px) {
+  body .vs-results-wrapper {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body .vs-results-wrapper {
+    padding: 12px !important;
+  }
 }
 `, []);
 
@@ -1036,7 +1109,17 @@ const ResultsComponent = () => {
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
+    <div 
+      className="vs-results-wrapper"
+      style={{ 
+        width: '100%', 
+        maxWidth: '100%', 
+        margin: 0, 
+        padding: '20px', 
+        boxSizing: 'border-box',
+        overflowX: 'hidden'
+      }}
+    >
       {renderCards()}
     </div>
   );

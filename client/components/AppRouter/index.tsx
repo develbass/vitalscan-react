@@ -35,7 +35,7 @@ const protectedRoutes = [
 const AppRouter = () => (
   <BrowserRouter basename="/">
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<Profile />} />
       <Route element={<ProtectedRoute />}>
         {protectedRoutes.map(({ path, element }) => (
           <Route key={path} path={path} element={element} />
