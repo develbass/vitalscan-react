@@ -1,17 +1,24 @@
 import { useState } from 'react';
-import { Heading, Card, Paragraph, Button } from '@nuralogix.ai/web-ui';
+import { Button } from '@nuralogix.ai/web-ui';
 import * as stylex from '@stylexjs/stylex';
-import { useTranslation } from 'react-i18next';
-import ProfileInfo from './ProfileInfo';
-import MedicalQuestionnaire from './MedicalQuestionnaire';
-import { FormState, WizardStep } from './types';
-import { INITIAL_FORM_STATE, WIZARD_STEPS } from './constants';
+import {
+  AgeField,
+  MetricHeightField,
+  ImperialHeightField,
+  WeightField,
+  SexSelector,
+  SmokingField,
+  BloodPressureMedField,
+  DiabetesStatusField,
+} from './Fields';
+import { FormState } from './types';
+import { INITIAL_FORM_STATE, FORM_VALUES, FORM_FIELDS } from './constants';
 import { useFormSubmission } from './utils/formSubmissionUtils';
-import { useNavigate } from 'react-router';
-import state from '../../state';
 import useUnitConversion from './hooks/useUnitConversion';
 import { usePrepopulateForm } from './hooks/usePrepopulateForm';
 import { useRapidocHealthPrefill } from './hooks/useRapidocHealthPrefill';
+import { isFormValid } from './utils/validationUtils';
+import { createFieldHandler } from './utils/formUtils';
 
 const styles = stylex.create({
   wrapper: {
@@ -20,76 +27,140 @@ const styles = stylex.create({
     alignItems: 'flex-start',
     padding: '40px 20px',
     boxSizing: 'border-box',
-    height: 'calc(100vh - 64px)',
+    minHeight: 'calc(100vh - 64px)',
     overflowY: 'auto',
     width: '100%',
+    backgroundColor: '#ffffff',
   },
-  card: {
-    padding: '32px',
-    maxWidth: '450px',
+  container: {
+    padding: '0px',
+    maxWidth: '520px',
     width: '100%',
     '@media (min-width: 640px)': {
-      maxWidth: '560px',
-      padding: '40px',
+      padding: '0px',
     },
     '@media (min-width: 900px)': {
-      maxWidth: '640px',
+      // Produção está visivelmente menor/mais compacta que o layout local.
+      // Aplicamos um scale no desktop para igualar fonte/inputs/spacing 1:1 sem brigar com estilos internos do @nuralogix.ai/web-ui.
+      transform: 'scale(0.82)',
+      transformOrigin: 'top center',
     },
   },
-  headerRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: '16px',
-    marginBottom: '36px',
+  header: {
+    textAlign: 'center',
+    marginBottom: '20px',
   },
-  introMessage: {
-    marginBottom: '24px',
+  title: {
+    margin: 0,
+    fontSize: '44px',
+    lineHeight: '1.1',
+    fontWeight: 700,
+    letterSpacing: '-0.02em',
+    color: '#0B1B3E',
+    '@media (max-width: 640px)': {
+      fontSize: '40px',
+    },
+  },
+  formContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  rowFields: {
+    display: 'flex',
+    gap: '12px',
+    '@media (max-width: 640px)': {
+      flexDirection: 'column',
+    },
+  },
+  fieldHalf: {
+    flex: 1,
+  },
+  buttonWrapper: {
+    marginTop: '16px',
+    display: 'flex',
+    justifyContent: 'flex-end',
   },
 });
 
 const FormWizard = () => {
-  const { t } = useTranslation();
-  const [currentStep, setCurrentStep] = useState<WizardStep>(WIZARD_STEPS.PROFILE);
   const [formState, setFormState] = useState<FormState>(INITIAL_FORM_STATE);
-  const navigate = useNavigate();
   const { handleSubmit } = useFormSubmission();
 
   useUnitConversion(formState, setFormState);
   usePrepopulateForm(setFormState);
   useRapidocHealthPrefill(setFormState);
 
-  const handleNextStep = () => {
-    setCurrentStep(WIZARD_STEPS.MEDICAL);
-  };
-
-  const handlePreviousStep = () => {
-    setCurrentStep(WIZARD_STEPS.PROFILE);
-  };
-
   const onSubmit = () => {
     void handleSubmit(formState);
   };
 
+  const isMetric = formState.unit === FORM_VALUES.METRIC;
+  const { sex, age, heightMetric, heightFeet, heightInches, weight, smoking, bloodPressureMed, diabetesStatus } = formState;
+
   return (
     <div {...stylex.props(styles.wrapper)}>
-      <Card xstyle={styles.card}>
-        <div {...stylex.props(styles.headerRow)}>
-        </div>
-        <div {...stylex.props(styles.introMessage)}>
-          <Paragraph>{t('PROFILE_FORM_INTRO_MESSAGE')}</Paragraph>
-        </div>
+      <div {...stylex.props(styles.container)}>
+       
 
-        <>
-          <ProfileInfo formState={formState} setFormState={setFormState} onNext={handleNextStep} />
-          <MedicalQuestionnaire
-            formState={formState}
-            setFormState={setFormState}
-            onSubmit={onSubmit}
-            onBack={handlePreviousStep}
+        <div {...stylex.props(styles.formContent)}>
+          <AgeField value={age} onChange={createFieldHandler(FORM_FIELDS.AGE, setFormState)} />
+          
+          <div {...stylex.props(styles.rowFields)}>
+            <div {...stylex.props(styles.fieldHalf)}>
+              {isMetric ? (
+                <MetricHeightField
+                  value={heightMetric}
+                  onChange={createFieldHandler(FORM_FIELDS.HEIGHT_METRIC, setFormState)}
+                />
+              ) : (
+                <ImperialHeightField
+                  feet={heightFeet}
+                  inches={heightInches}
+                  onFeetChange={createFieldHandler(FORM_FIELDS.HEIGHT_FEET, setFormState)}
+                  onInchesChange={createFieldHandler(FORM_FIELDS.HEIGHT_INCHES, setFormState)}
+                />
+              )}
+            </div>
+            
+            <div {...stylex.props(styles.fieldHalf)}>
+              <WeightField
+                value={weight}
+                onChange={createFieldHandler(FORM_FIELDS.WEIGHT, setFormState)}
+                isMetric={isMetric}
+              />
+            </div>
+          </div>
+          
+          <SexSelector value={sex} onChange={createFieldHandler(FORM_FIELDS.SEX, setFormState)} />
+          
+          <SmokingField
+            value={smoking}
+            onChange={createFieldHandler(FORM_FIELDS.SMOKING, setFormState)}
           />
-        </>
-      </Card>
+          
+          <BloodPressureMedField
+            value={bloodPressureMed}
+            onChange={createFieldHandler(FORM_FIELDS.BLOOD_PRESSURE_MED, setFormState)}
+          />
+          
+          <DiabetesStatusField
+            value={diabetesStatus}
+            onChange={createFieldHandler(FORM_FIELDS.DIABETES_STATUS, setFormState)}
+          />
+          
+          <div {...stylex.props(styles.buttonWrapper)}>
+            <Button
+              width="160px"
+              variant="primary"
+              onClick={onSubmit}
+              disabled={!isFormValid(formState)}
+            >
+              CONTINUE
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

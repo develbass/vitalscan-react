@@ -5,11 +5,11 @@ const styles = stylex.create({
   fieldWrapper: {
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: '12px',
+    marginBottom: '0px',
   },
   // For text inputs - reserves space for validation messages
   textInput: {
-    minHeight: '90px', // Label + input + validation message space
+    minHeight: '80px', // Label + input + validation message space
   },
 });
 

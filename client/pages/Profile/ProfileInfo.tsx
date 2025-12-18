@@ -42,7 +42,6 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ formState, setFormState, onNe
     <WizardStepWrapper onSubmit={onNext} isEnabled={isProfileInfoValid(formState)}>
       <SexSelector value={sex} onChange={createFieldHandler(FORM_FIELDS.SEX, setFormState)} />
       <AgeField value={age} onChange={createFieldHandler(FORM_FIELDS.AGE, setFormState)} />
-      <UnitSelector value={unit} onChange={createFieldHandler(FORM_FIELDS.UNIT, setFormState)} />
       {showBMIError(formState) && (
         <div {...stylex.props(styles.bmiError)}>
           <Paragraph>{t('PROFILE_FORM_VALIDATION_BMI')}</Paragraph>
