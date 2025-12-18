@@ -31,19 +31,17 @@ const styles = stylex.create({
     overflowY: 'auto',
     width: '100%',
     backgroundColor: '#ffffff',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
   },
   container: {
     padding: '0px',
     maxWidth: '520px',
     width: '100%',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     '@media (min-width: 640px)': {
       padding: '0px',
-    },
-    '@media (min-width: 900px)': {
-      // Produção está visivelmente menor/mais compacta que o layout local.
-      // Aplicamos um scale no desktop para igualar fonte/inputs/spacing 1:1 sem brigar com estilos internos do @nuralogix.ai/web-ui.
-      transform: 'scale(0.82)',
-      transformOrigin: 'top center',
     },
   },
   header: {
@@ -64,7 +62,9 @@ const styles = stylex.create({
   formContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '20px',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    color: '#1a1a1a',
   },
   rowFields: {
     display: 'flex',
@@ -80,6 +80,7 @@ const styles = stylex.create({
     marginTop: '16px',
     display: 'flex',
     justifyContent: 'flex-end',
+    width: '100%',
   },
 });
 
@@ -149,9 +150,8 @@ const FormWizard = () => {
             onChange={createFieldHandler(FORM_FIELDS.DIABETES_STATUS, setFormState)}
           />
           
-          <div {...stylex.props(styles.buttonWrapper)}>
+          <div {...stylex.props(styles.buttonWrapper)} className="continue-button-wrapper">
             <Button
-              width="160px"
               variant="primary"
               onClick={onSubmit}
               disabled={!isFormValid(formState)}

@@ -9,6 +9,10 @@ body,
 #root {
   margin: 0;
   height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #measurement-embedded-app-container {
@@ -17,4 +21,56 @@ body,
   left: 0;
   width: 100vw;
   height: calc(100vh - 60px);
+}
+
+/* Melhorias de tipografia para formulários */
+input[type="text"],
+input[type="number"] {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: '-0.01em';
+}
+
+label {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-weight: 400;
+  letter-spacing: '-0.01em';
+}
+
+/* Cor customizada para o botão CONTINUE */
+.continue-button-wrapper {
+  display: flex !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  margin-left: auto !important;
+}
+
+.continue-button-wrapper button {
+  background-color: #030a33 !important;
+  margin-left: auto !important;
+  padding: 12px 32px !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  min-width: 140px !important;
+}
+
+.continue-button-wrapper button:hover:not(:disabled) {
+  background-color: #050d44 !important;
+}
+
+.continue-button-wrapper button:disabled {
+  background-color: #cccccc !important;
+  opacity: 0.6;
+  cursor: not-allowed !important;
 }
