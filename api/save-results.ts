@@ -1,3 +1,5 @@
+import { logCurlRequest } from "../client/utils/networkUtils";
+
 export default async function handler(req: any, res: any) {
   console.log('[API DEBUG] save-results handler called');
   console.log('[API DEBUG] Method:', req.method);
@@ -134,6 +136,12 @@ export default async function handler(req: any, res: any) {
     }
 
     console.log('[API DEBUG] Calling update URL:', finalUrl);
+
+    logCurlRequest(finalUrl, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(payload),
+    });
 
     const response = await fetch(finalUrl, {
       method: 'PUT',
