@@ -411,7 +411,19 @@ const Measurement = () => {
     <div {...stylex.props(styles.container)}>
       {appError ? <ErrorMessage error={appError} onClear={onClear} /> : null}
       {/* Container será anexado aqui pelo código de inicialização */}
-      <div data-measurement-container style={{ flex: 1, position: 'relative', padding: '16px' }} />
+      <div 
+        data-measurement-container 
+        style={{ 
+          flex: 1, 
+          position: 'relative', 
+          padding: '16px', 
+          backgroundColor: '#fff',
+          width: '100%',
+          height: '100%',
+          overflow: 'auto',
+          boxSizing: 'border-box'
+        }} 
+      />
     </div>
   );
 };

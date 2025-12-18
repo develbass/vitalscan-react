@@ -21,6 +21,54 @@ body,
   left: 0;
   width: 100vw;
   height: calc(100vh - 60px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Estilos responsivos para o SDK de medição */
+@media (max-width: 768px) {
+  #measurement-embedded-app-container {
+    padding: 8px !important;
+  }
+  
+  /* Garantir que os elementos internos do SDK se ajustem */
+  #measurement-embedded-app-container > * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Ajustar dropdowns e controles do SDK */
+  #measurement-embedded-app-container select,
+  #measurement-embedded-app-container button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+    padding: 10px 16px !important;
+  }
+  
+  /* Garantir que os controles da câmera fiquem visíveis */
+  #measurement-embedded-app-container [class*="camera"],
+  #measurement-embedded-app-container [class*="control"],
+  #measurement-embedded-app-container [class*="select"],
+  #measurement-embedded-app-container [class*="dropdown"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #measurement-embedded-app-container {
+    padding: 4px !important;
+  }
+  
+  /* Ajustar ainda mais para telas muito pequenas */
+  #measurement-embedded-app-container select,
+  #measurement-embedded-app-container button {
+    min-height: 48px !important;
+    font-size: 16px !important;
+    padding: 12px 16px !important;
+    width: 100% !important;
+  }
 }
 
 /* Melhorias de tipografia para formulários */
@@ -73,4 +121,80 @@ label {
   background-color: #cccccc !important;
   opacity: 0.6;
   cursor: not-allowed !important;
+}
+
+/* Estilos específicos para garantir visibilidade dos controles do SDK em mobile */
+@media (max-width: 768px) {
+  /* Forçar visibilidade de todos os controles interativos */
+  #measurement-embedded-app-container * {
+    box-sizing: border-box !important;
+  }
+  
+  /* Garantir que vídeos e canvas se ajustem */
+  #measurement-embedded-app-container video,
+  #measurement-embedded-app-container canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Estilos para o container do player/câmera */
+  #measurement-embedded-app-container [role="region"],
+  #measurement-embedded-app-container [class*="player"],
+  #measurement-embedded-app-container [class*="video"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Garantir que os controles não fiquem cortados */
+  #measurement-embedded-app-container [class*="controls"],
+  #measurement-embedded-app-container [class*="toolbar"],
+  #measurement-embedded-app-container [class*="actions"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    width: 100% !important;
+  }
+  
+  /* Ajustar layout dos botões para empilhar verticalmente */
+  #measurement-embedded-app-container [class*="button-group"],
+  #measurement-embedded-app-container [class*="control-group"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+  
+  /* Garantir que inputs e selects sejam visíveis e acessíveis */
+  #measurement-embedded-app-container input,
+  #measurement-embedded-app-container select,
+  #measurement-embedded-app-container button {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    margin: 8px 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ajustes adicionais para telas muito pequenas */
+  #measurement-embedded-app-container {
+    font-size: 14px !important;
+  }
+  
+  #measurement-embedded-app-container [class*="controls"],
+  #measurement-embedded-app-container [class*="toolbar"],
+  #measurement-embedded-app-container [class*="actions"] {
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  
+  /* Garantir que o dropdown de câmera tenha espaço adequado */
+  #measurement-embedded-app-container select {
+    max-width: 100% !important;
+    width: 100% !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+  }
 }
