@@ -105,12 +105,8 @@ export default async function handler(req, res) {
       'token': token,
     };
 
-    console.log('[API DEBUG] Calling validate URL:', validateUrl);
-
-    logCurlRequest(validateUrl, {
-      method: 'GET',
-      headers,
-    });
+    console.log('[API DEBUG] Calling update URL:', validateUrl);
+    console.log('[API DEBUG] Request headers:', JSON.stringify(headers, null, 2));
 
     const response = await fetch(validateUrl, {
       method: 'GET',
