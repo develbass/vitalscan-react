@@ -66,11 +66,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ formState, setFormState, onNe
         onChange={createFieldHandler(FORM_FIELDS.WEIGHT, setFormState)}
         isMetric={isMetric}
       />
-      <div {...stylex.props(styles.nextButton)}>
-        <Button width="100%" onClick={onNext} disabled={!isProfileInfoValid(formState)}>
-          {t('NEXT')}
-        </Button>
-      </div>
+     
     </WizardStepWrapper>
   );
 };

@@ -8,6 +8,7 @@ import { useValidateToken } from './hooks/useValidateToken';
 const Profile = () => {
   const { isMobile } = useMobileDetection();
   const { isValidating, isValid, error, data } = useValidateToken();
+  console.log('data', data);
 
   // Executa validação ao montar o componente
   // Os parâmetros token, beneficiaryUuid e clientUuid vêm da URL
@@ -33,8 +34,12 @@ const Profile = () => {
     return <AccessDenied />;
   }
 
+  if (data === null) {
+    return <AccessDenied />;
+  }
+
   // Se isValid é true ou null (não há parâmetros na URL ou validação bem-sucedida), mostra o formulário normalmente
-  return isMobile ? <MobileFormWizard /> : <WebFormWizard />;
+  return <WebFormWizard />;
 };
 
 export default Profile;

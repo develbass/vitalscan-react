@@ -75,37 +75,20 @@ const FormWizard = () => {
     <div {...stylex.props(styles.wrapper)}>
       <Card xstyle={styles.card}>
         <div {...stylex.props(styles.headerRow)}>
-          
-          <Button
-            variant="link"
-            type="button"
-            onClick={() => {
-              state.demographics.setDemographics({
-                ...state.demographics.demographics,
-                bypassProfile: true,
-              });
-              navigate('/measurement');
-            }}
-          >
-            {t('SKIP_PROFILE')}
-          </Button>
         </div>
         <div {...stylex.props(styles.introMessage)}>
           <Paragraph>{t('PROFILE_FORM_INTRO_MESSAGE')}</Paragraph>
         </div>
 
-        {currentStep === WIZARD_STEPS.PROFILE && (
+        <>
           <ProfileInfo formState={formState} setFormState={setFormState} onNext={handleNextStep} />
-        )}
-
-        {currentStep === WIZARD_STEPS.MEDICAL && (
           <MedicalQuestionnaire
             formState={formState}
             setFormState={setFormState}
             onSubmit={onSubmit}
             onBack={handlePreviousStep}
           />
-        )}
+        </>
       </Card>
     </div>
   );
