@@ -93,6 +93,9 @@ const FormWizard = () => {
   useRapidocHealthPrefill(setFormState);
 
   const onSubmit = () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'WebFormWizard.tsx:95',message:'Button clicked - onSubmit called',data:{url:window.location.href,formValid:isFormValid(formState)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     void handleSubmit(formState);
   };
 

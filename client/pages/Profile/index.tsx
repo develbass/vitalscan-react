@@ -6,8 +6,14 @@ import { useMobileDetection } from '../../hooks/useMobileDetection';
 import { useValidateToken } from './hooks/useValidateToken';
 
 const Profile = () => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile/index.tsx:9',message:'Profile component render started',data:{timestamp:Date.now(),url:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   const { isMobile } = useMobileDetection();
   const { isValidating, isValid, error, data } = useValidateToken();
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Profile/index.tsx:12',message:'useValidateToken result',data:{isValidating,isValid,hasError:!!error,dataIsNull:data===null,dataValue:data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   console.log('data', data);
 
   // Executa validação ao montar o componente

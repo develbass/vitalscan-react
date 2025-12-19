@@ -80,8 +80,14 @@ export const useFormSubmission = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (formState: FormState): Promise<void> => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'formSubmissionUtils.ts:82',message:'handleSubmit called',data:{url:window.location.href,isFormValid:isFormValid(formState)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     // Defensive validation check but disabled btns should prevent this
     if (!isFormValid(formState)) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'formSubmissionUtils.ts:85',message:'Form invalid - returning early',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       // TODO: Show error notification to user if needed
       return;
     }
@@ -96,6 +102,9 @@ export const useFormSubmission = () => {
     state.demographics.setDemographics(demographicsData);
 
     // Navigate to measurement page
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/ef05f324-2bd2-4798-b012-3d6b048b54c0',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'formSubmissionUtils.ts:99',message:'Navigating to measurement page',data:{currentUrl:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     navigate('/measurement');
   };
 
