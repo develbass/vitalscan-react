@@ -208,7 +208,7 @@ const Measurement = () => {
           },
           profile: demographics,
           config: {
-            checkConstraints: true,
+            checkConstraints: false,
             cameraFacingMode: 'user',
             cameraAutoStart: false,
             measurementAutoStart: false,
@@ -290,7 +290,21 @@ const Measurement = () => {
                       video, canvas { max-width: 100% !important; width: 100% !important; height: auto !important; }
                       [style*="display: flex"], [style*="display:flex"] { flex-wrap: wrap !important; }
                       
-                      /* Garantir que botões de câmera fiquem visíveis */
+                      /* Garantir que o container permita scroll */
+                      #measurement-embedded-app-container {
+                        overflow-y: auto !important;
+                        overflow-x: hidden !important;
+                        -webkit-overflow-scrolling: touch !important;
+                        max-height: calc(100vh - 100px) !important;
+                        padding-bottom: 120px !important;
+                      }
+                      
+                      /* Garantir que botões na parte inferior sejam visíveis */
+                      #measurement-embedded-app-container > * {
+                        padding-bottom: 20px !important;
+                      }
+                      
+                      /* Estilos gerais para botões */
                       button[type="button"],
                       button:not([type]),
                       input[type="button"],
@@ -306,21 +320,7 @@ const Measurement = () => {
                         touch-action: manipulation !important;
                       }
                       
-                      /* Garantir que o container permita scroll */
-                      #measurement-embedded-app-container {
-                        overflow-y: auto !important;
-                        overflow-x: hidden !important;
-                        -webkit-overflow-scrolling: touch !important;
-                        max-height: 100vh !important;
-                        padding-bottom: 100px !important;
-                      }
-                      
-                      /* Garantir que botões na parte inferior sejam visíveis */
-                      #measurement-embedded-app-container > * {
-                        padding-bottom: 20px !important;
-                      }
-                      
-                      /* Estilos específicos para botões de câmera/medida */
+                      /* Estilos específicos para botões de câmera/medida - FIXO na parte inferior */
                       button:has(svg),
                       button:has(img),
                       button[aria-label*="camera"],
@@ -328,15 +328,42 @@ const Measurement = () => {
                       button[aria-label*="start"],
                       button[aria-label*="Start"],
                       button[title*="camera"],
-                      button[title*="Camera"] {
-                        position: sticky !important;
-                        bottom: 20px !important;
+                      button[title*="Camera"],
+                      button[class*="camera"],
+                      button[id*="camera"],
+                      /* Seletor genérico para botões circulares (como o do Instagram) */
+                      button[style*="border-radius"]:has(svg),
+                      button[style*="border-radius"]:has(img) {
+                        position: fixed !important;
+                        bottom: 100px !important;
+                        left: 50% !important;
+                        transform: translateX(-50%) !important;
                         z-index: 10000 !important;
-                        background: #007bff !important;
-                        color: white !important;
-                        border-radius: 8px !important;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
-                        margin-top: 20px !important;
+                        width: 80px !important;
+                        height: 80px !important;
+                        min-width: 80px !important;
+                        min-height: 80px !important;
+                        max-width: 80px !important;
+                        max-height: 80px !important;
+                        border-radius: 50% !important;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        background: transparent !important;
+                        border: 2px solid #000 !important;
+                      }
+                      
+                      /* Garantir que botões dentro de divs também fiquem fixos */
+                      #measurement-embedded-app-container button:has(svg),
+                      #measurement-embedded-app-container button:has(img) {
+                        position: fixed !important;
+                        bottom: 100px !important;
+                        left: 50% !important;
+                        transform: translateX(-50%) !important;
+                        z-index: 10000 !important;
                       }
                     }
                   `;
@@ -348,59 +375,68 @@ const Measurement = () => {
                   sdkContainer.offsetHeight; // trigger reflow
                   sdkContainer.style.display = 'block';
                   
-                  // Garantir que botões fiquem visíveis no mobile - fazer scroll após um delay
+                  // Garantir que botões fiquem sempre visíveis no mobile
                   if (window.innerWidth <= 768) {
-                    const ensureButtonsVisible = () => {
-                      // Procurar por botões no container
+                    const fixButtonsPosition = () => {
+                      // Procurar por todos os botões no container
                       const buttons = sdkContainer.querySelectorAll('button');
-                      if (buttons.length > 0) {
-                        // Fazer scroll para o último botão (geralmente o botão de ação principal)
-                        const lastButton = buttons[buttons.length - 1];
-                        lastButton.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'end',
-                          inline: 'nearest'
-                        });
-                        console.log('[DEBUG] Scrolled to button on mobile');
-                      } else {
-                        // Se não encontrou botões, fazer scroll para o final do container
-                        sdkContainer.scrollTo({
-                          top: sdkContainer.scrollHeight,
-                          behavior: 'smooth'
-                        });
-                        console.log('[DEBUG] Scrolled to bottom of container on mobile');
-                      }
+                      console.log('[DEBUG] Found buttons:', buttons.length);
+                      
+                      buttons.forEach((button, index) => {
+                        const buttonElement = button as HTMLElement;
+                        
+                        // Verificar se é um botão de câmera (tem SVG, img, ou é circular)
+                        const hasSvg = buttonElement.querySelector('svg') !== null;
+                        const hasImg = buttonElement.querySelector('img') !== null;
+                        const isCircular = buttonElement.style.borderRadius === '50%' || 
+                                         getComputedStyle(buttonElement).borderRadius === '50%';
+                        
+                        if (hasSvg || hasImg || isCircular) {
+                          // Aplicar estilos fixos diretamente no botão
+                          buttonElement.style.position = 'fixed';
+                          buttonElement.style.bottom = '100px';
+                          buttonElement.style.left = '50%';
+                          buttonElement.style.transform = 'translateX(-50%)';
+                          buttonElement.style.zIndex = '10000';
+                          buttonElement.style.width = '80px';
+                          buttonElement.style.height = '80px';
+                          buttonElement.style.minWidth = '80px';
+                          buttonElement.style.minHeight = '80px';
+                          buttonElement.style.borderRadius = '50%';
+                          buttonElement.style.boxShadow = '0 4px 20px rgba(0,0,0,0.4)';
+                          buttonElement.style.margin = '0';
+                          buttonElement.style.padding = '0';
+                          buttonElement.style.display = 'flex';
+                          buttonElement.style.alignItems = 'center';
+                          buttonElement.style.justifyContent = 'center';
+                          buttonElement.style.visibility = 'visible';
+                          buttonElement.style.opacity = '1';
+                          
+                          console.log('[DEBUG] Fixed button position:', index, buttonElement);
+                        }
+                      });
                     };
                     
-                    // Fazer scroll inicial após 1 segundo
-                    setTimeout(ensureButtonsVisible, 1000);
+                    // Aplicar fixação imediatamente e após delays
+                    fixButtonsPosition();
+                    setTimeout(fixButtonsPosition, 500);
+                    setTimeout(fixButtonsPosition, 1000);
+                    setTimeout(fixButtonsPosition, 2000);
                     
                     // Observer para detectar quando novos botões são adicionados
-                    const buttonObserver = new MutationObserver((mutations) => {
-                      let hasNewButtons = false;
-                      mutations.forEach((mutation) => {
-                        mutation.addedNodes.forEach((node) => {
-                          if (node.nodeType === 1) { // Element node
-                            const element = node as Element;
-                            if (element.tagName === 'BUTTON' || element.querySelector('button')) {
-                              hasNewButtons = true;
-                            }
-                          }
-                        });
-                      });
-                      
-                      if (hasNewButtons) {
-                        setTimeout(ensureButtonsVisible, 500);
-                      }
+                    const buttonObserver = new MutationObserver(() => {
+                      fixButtonsPosition();
                     });
                     
                     // Observar mudanças no container
                     buttonObserver.observe(sdkContainer, {
                       childList: true,
-                      subtree: true
+                      subtree: true,
+                      attributes: true,
+                      attributeFilter: ['style', 'class']
                     });
                     
-                    console.log('[DEBUG] Button visibility observer set up for mobile');
+                    console.log('[DEBUG] Button position fixer set up for mobile');
                   }
                 }
               } catch (error) {
@@ -553,6 +589,17 @@ const Measurement = () => {
     setAppError(null);
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <div {...stylex.props(styles.container)}>
       {appError ? <ErrorMessage error={appError} onClear={onClear} /> : null}
@@ -561,6 +608,9 @@ const Measurement = () => {
         data-measurement-container 
         {...stylex.props(styles.measurementWrapper)}
         className="measurement-wrapper"
+        style={{
+          paddingBottom: isMobile ? '200px' : '120px'
+        }}
       />
     </div>
   );
