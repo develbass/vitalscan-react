@@ -600,6 +600,18 @@ const Measurement = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Rolar para o fim da página após 1 segundo quando a página abrir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div {...stylex.props(styles.container)}>
       {appError ? <ErrorMessage error={appError} onClear={onClear} /> : null}
